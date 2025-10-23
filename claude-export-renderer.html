@@ -483,15 +483,26 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Claude AI Export Renderer</h1>
-            <p>Load and explore your Claude conversation exports with search, filtering, and clean formatting</p>
+            <h1 data-i18n="main-title">Claude AI Export Renderer</h1>
+            <p data-i18n="subtitle">Load and explore your Claude conversation exports with search, filtering, and clean formatting</p>
             
-            <div class="file-input-section">
-                <div class="file-input-wrapper">
-                    <input type="file" id="fileInput" class="file-input" accept=".json" />
-                    <button class="file-input-button">Choose Claude Export File</button>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                <div class="file-input-section">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="fileInput" class="file-input" accept=".json" />
+                        <button class="file-input-button" data-i18n="choose-file">Choose Claude Export File</button>
+                    </div>
+                    <div id="fileName" style="margin-top: 10px; color: #b0b0b0;"></div>
                 </div>
-                <div id="fileName" style="margin-top: 10px; color: #b0b0b0;"></div>
+                
+                <div class="language-selector">
+                    <select id="languageSelect" style="padding: 8px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #e0e0e0;">
+                        <option value="en">English</option>
+                        <option value="de">Deutsch</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -502,40 +513,40 @@
         </div>
 
         <div id="controls" class="controls">
-            <input type="text" id="searchBox" class="search-box" placeholder="Search conversations and messages (press Enter)..." />
+            <input type="text" id="searchBox" class="search-box" data-i18n-placeholder="search-placeholder" placeholder="Search conversations and messages (press Enter)..." />
             
             <div class="filters">
                 <div class="filter-group">
-                    <label>Sort by:</label>
+                    <label data-i18n="sort-by">Sort by:</label>
                     <select id="sortBy" class="filter-select">
-                        <option value="date-desc">Date (Newest First)</option>
-                        <option value="date-asc">Date (Oldest First)</option>
-                        <option value="title-asc">Title (A-Z)</option>
-                        <option value="title-desc">Title (Z-A)</option>
-                        <option value="messages-desc">Most Messages</option>
-                        <option value="messages-asc">Fewest Messages</option>
+                        <option value="date-desc" data-i18n="date-newest">Date (Newest First)</option>
+                        <option value="date-asc" data-i18n="date-oldest">Date (Oldest First)</option>
+                        <option value="title-asc" data-i18n="title-a-z">Title (A-Z)</option>
+                        <option value="title-desc" data-i18n="title-z-a">Title (Z-A)</option>
+                        <option value="messages-desc" data-i18n="most-messages">Most Messages</option>
+                        <option value="messages-asc" data-i18n="fewest-messages">Fewest Messages</option>
                     </select>
                 </div>
                 
                 <div class="filter-group">
-                    <label>Date Range:</label>
+                    <label data-i18n="date-range">Date Range:</label>
                     <select id="dateFilter" class="filter-select">
-                        <option value="all">All Time</option>
-                        <option value="today">Today</option>
-                        <option value="week">This Week</option>
-                        <option value="month">This Month</option>
-                        <option value="quarter">This Quarter</option>
-                        <option value="year">This Year</option>
+                        <option value="all" data-i18n="all-time">All Time</option>
+                        <option value="today" data-i18n="today">Today</option>
+                        <option value="week" data-i18n="this-week">This Week</option>
+                        <option value="month" data-i18n="this-month">This Month</option>
+                        <option value="quarter" data-i18n="this-quarter">This Quarter</option>
+                        <option value="year" data-i18n="this-year">This Year</option>
                     </select>
                 </div>
                 
                 <div class="filter-group">
-                    <label>Show:</label>
+                    <label data-i18n="show">Show:</label>
                     <select id="showFilter" class="filter-select">
-                        <option value="all">All Conversations</option>
-                        <option value="has-assistant">With Claude Responses</option>
-                        <option value="long">Long Conversations (10+ messages)</option>
-                        <option value="recent">Recently Updated</option>
+                        <option value="all" data-i18n="all-conversations">All Conversations</option>
+                        <option value="has-assistant" data-i18n="with-claude">With Claude Responses</option>
+                        <option value="long" data-i18n="long-conversations">Long Conversations (10+ messages)</option>
+                        <option value="recent" data-i18n="recently-updated">Recently Updated</option>
                     </select>
                 </div>
             </div>
@@ -545,19 +556,19 @@
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-value" id="totalConversations">0</div>
-                    <div class="stat-label">Total Conversations</div>
+                    <div class="stat-label" data-i18n="total-conversations">Total Conversations</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" id="totalMessages">0</div>
-                    <div class="stat-label">Total Messages</div>
+                    <div class="stat-label" data-i18n="total-messages">Total Messages</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" id="dateRange">-</div>
-                    <div class="stat-label">Date Range</div>
+                    <div class="stat-label" data-i18n="date-range-label">Date Range</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" id="avgMessages">0</div>
-                    <div class="stat-label">Avg Messages/Chat</div>
+                    <div class="stat-label" data-i18n="avg-messages">Avg Messages/Chat</div>
                 </div>
             </div>
         </div>
@@ -567,33 +578,265 @@
         </div>
 
         <div id="pagination" class="pagination">
-            <button id="firstPage">First</button>
-            <button id="prevPage">Previous</button>
-            <span class="current-page">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
-            <button id="nextPage">Next</button>
-            <button id="lastPage">Last</button>
+            <button id="firstPage" data-i18n="first">First</button>
+            <button id="prevPage" data-i18n="previous">Previous</button>
+            <span class="current-page"><span data-i18n="page">Page</span> <span id="currentPage">1</span> <span data-i18n="of">of</span> <span id="totalPages">1</span></span>
+            <button id="nextPage" data-i18n="next">Next</button>
+            <button id="lastPage" data-i18n="last">Last</button>
         </div>
 
         <div id="conversationsList" class="conversations-list"></div>
 
         <div id="pagination2" class="pagination">
-            <button id="firstPage2">First</button>
-            <button id="prevPage2">Previous</button>
-            <span class="current-page">Page <span id="currentPage2">1</span> of <span id="totalPages2">1</span></span>
-            <button id="nextPage2">Next</button>
-            <button id="lastPage2">Last</button>
+            <button id="firstPage2" data-i18n="first">First</button>
+            <button id="prevPage2" data-i18n="previous">Previous</button>
+            <span class="current-page"><span data-i18n="page">Page</span> <span id="currentPage2">1</span> <span data-i18n="of">of</span> <span id="totalPages2">1</span></span>
+            <button id="nextPage2" data-i18n="next">Next</button>
+            <button id="lastPage2" data-i18n="last">Last</button>
         </div>
     </div>
 
     <div id="footer" class="footer">
-        <p><strong>Claude AI Export Renderer</strong> - Built for exploring your Claude conversation history</p>
-        <p>Features: Search, filter, artifact rendering, and pagination for large exports</p>
-        <p>Having issues? Check the browser console (F12) for debugging info</p>
-        <p>Created with ❤️ for the Claude community</p>
-        <p>Developed collaboratively to handle large conversation exports</p>
+        <p><strong data-i18n="footer-title">Claude AI Export Renderer</strong> - <span data-i18n="footer-subtitle">Built for exploring your Claude conversation history</span></p>
+        <p data-i18n="footer-features">Features: Search, filter, artifact rendering, and pagination for large exports</p>
+        <p data-i18n="footer-issues">Having issues? Check the browser console (F12) for debugging info</p>
+        <p data-i18n="footer-community">Created with ❤️ for the Claude community</p>
+        <p data-i18n="footer-collaboration">Developed collaboratively to handle large conversation exports</p>
     </div>
 
     <script>
+        // Internationalization support
+        const translations = {
+            en: {
+                'main-title': 'Claude AI Export Renderer',
+                'subtitle': 'Load and explore your Claude conversation exports with search, filtering, and clean formatting',
+                'choose-file': 'Choose Claude Export File',
+                'search-placeholder': 'Search conversations and messages (press Enter)...',
+                'sort-by': 'Sort by:',
+                'date-newest': 'Date (Newest First)',
+                'date-oldest': 'Date (Oldest First)',
+                'title-a-z': 'Title (A-Z)',
+                'title-z-a': 'Title (Z-A)',
+                'most-messages': 'Most Messages',
+                'fewest-messages': 'Fewest Messages',
+                'date-range': 'Date Range:',
+                'all-time': 'All Time',
+                'today': 'Today',
+                'this-week': 'This Week',
+                'this-month': 'This Month',
+                'this-quarter': 'This Quarter',
+                'this-year': 'This Year',
+                'show': 'Show:',
+                'all-conversations': 'All Conversations',
+                'with-claude': 'With Claude Responses',
+                'long-conversations': 'Long Conversations (10+ messages)',
+                'recently-updated': 'Recently Updated',
+                'total-conversations': 'Total Conversations',
+                'total-messages': 'Total Messages',
+                'date-range-label': 'Date Range',
+                'avg-messages': 'Avg Messages/Chat',
+                'search-button': 'Search',
+                'large-file-warning': 'Large File Detected! Your export is quite large. Pagination activated for better performance.',
+                'processing': 'Processing your Claude export...',
+                'no-results': 'No conversations found matching your criteria.',
+                'page': 'Page',
+                'of': 'of',
+                'first': 'First',
+                'previous': 'Previous',
+                'next': 'Next',
+                'last': 'Last',
+                'footer-title': 'Claude AI Export Renderer',
+                'footer-subtitle': 'Built for exploring your Claude conversation history',
+                'footer-features': 'Features: Search, filter, artifact rendering, and pagination for large exports',
+                'footer-issues': 'Having issues? Check the browser console (F12) for debugging info',
+                'footer-community': 'Created with ❤️ for the Claude community',
+                'footer-collaboration': 'Developed collaboratively to handle large conversation exports'
+            },
+            de: {
+                'main-title': 'Claude AI Export Renderer',
+                'subtitle': 'Laden und erkunden Sie Ihre Claude-Konversationsexporte mit Such-, Filter- und sauberen Formatierungsfunktionen',
+                'choose-file': 'Claude-Exportdatei auswählen',
+                'search-placeholder': 'Konversationen und Nachrichten durchsuchen (Enter drücken)...',
+                'sort-by': 'Sortieren nach:',
+                'date-newest': 'Datum (Neueste zuerst)',
+                'date-oldest': 'Datum (Älteste zuerst)',
+                'title-a-z': 'Titel (A-Z)',
+                'title-z-a': 'Titel (Z-A)',
+                'most-messages': 'Meiste Nachrichten',
+                'fewest-messages': 'Wenigste Nachrichten',
+                'date-range': 'Datumsbereich:',
+                'all-time': 'Alle Zeit',
+                'today': 'Heute',
+                'this-week': 'Diese Woche',
+                'this-month': 'Dieser Monat',
+                'this-quarter': 'Dieses Quartal',
+                'this-year': 'Dieses Jahr',
+                'show': 'Anzeigen:',
+                'all-conversations': 'Alle Konversationen',
+                'with-claude': 'Mit Claude-Antworten',
+                'long-conversations': 'Lange Konversationen (10+ Nachrichten)',
+                'recently-updated': 'Kürzlich aktualisiert',
+                'total-conversations': 'Gesamt Konversationen',
+                'total-messages': 'Gesamt Nachrichten',
+                'date-range-label': 'Datumsbereich',
+                'avg-messages': 'Durchschn. Nachrichten/Chat',
+                'search-button': 'Suchen',
+                'large-file-warning': 'Große Datei erkannt! Ihr Export ist ziemlich groß. Paginierung für bessere Leistung aktiviert.',
+                'processing': 'Verarbeitung Ihres Claude-Exports...',
+                'no-results': 'Keine Konversationen gefunden, die Ihren Kriterien entsprechen.',
+                'page': 'Seite',
+                'of': 'von',
+                'first': 'Erste',
+                'previous': 'Vorherige',
+                'next': 'Nächste',
+                'last': 'Letzte',
+                'footer-title': 'Claude AI Export Renderer',
+                'footer-subtitle': 'Erstellt für die Erkundung Ihrer Claude-Konversationshistorie',
+                'footer-features': 'Funktionen: Suche, Filter, Artefakt-Darstellung und Paginierung für große Exporte',
+                'footer-issues': 'Probleme? Überprüfen Sie die Browser-Konsole (F12) für Debugging-Informationen',
+                'footer-community': 'Mit ❤️ für die Claude-Community erstellt',
+                'footer-collaboration': 'Kollaborativ entwickelt, um große Konversationsexporte zu handhaben'
+            },
+            es: {
+                'main-title': 'Claude AI Export Renderer',
+                'subtitle': 'Carga y explora tus exportaciones de conversaciones de Claude con búsqueda, filtrado y formato limpio',
+                'choose-file': 'Elegir archivo de exportación de Claude',
+                'search-placeholder': 'Buscar conversaciones y mensajes (presiona Enter)...',
+                'sort-by': 'Ordenar por:',
+                'date-newest': 'Fecha (Más reciente primero)',
+                'date-oldest': 'Fecha (Más antiguo primero)',
+                'title-a-z': 'Título (A-Z)',
+                'title-z-a': 'Título (Z-A)',
+                'most-messages': 'Más mensajes',
+                'fewest-messages': 'Menos mensajes',
+                'date-range': 'Rango de fechas:',
+                'all-time': 'Todo el tiempo',
+                'today': 'Hoy',
+                'this-week': 'Esta semana',
+                'this-month': 'Este mes',
+                'this-quarter': 'Este trimestre',
+                'this-year': 'Este año',
+                'show': 'Mostrar:',
+                'all-conversations': 'Todas las conversaciones',
+                'with-claude': 'Con respuestas de Claude',
+                'long-conversations': 'Conversaciones largas (10+ mensajes)',
+                'recently-updated': 'Recientemente actualizado',
+                'total-conversations': 'Total de conversaciones',
+                'total-messages': 'Total de mensajes',
+                'date-range-label': 'Rango de fechas',
+                'avg-messages': 'Promedio mensajes/chat',
+                'search-button': 'Buscar',
+                'large-file-warning': '¡Archivo grande detectado! Tu exportación es bastante grande. Paginación activada para mejor rendimiento.',
+                'processing': 'Procesando tu exportación de Claude...',
+                'no-results': 'No se encontraron conversaciones que coincidan con tus criterios.',
+                'page': 'Página',
+                'of': 'de',
+                'first': 'Primera',
+                'previous': 'Anterior',
+                'next': 'Siguiente',
+                'last': 'Última',
+                'footer-title': 'Claude AI Export Renderer',
+                'footer-subtitle': 'Construido para explorar tu historial de conversaciones de Claude',
+                'footer-features': 'Características: Búsqueda, filtros, renderizado de artefactos y paginación para exportaciones grandes',
+                'footer-issues': '¿Tienes problemas? Revisa la consola del navegador (F12) para información de depuración',
+                'footer-community': 'Creado con ❤️ para la comunidad de Claude',
+                'footer-collaboration': 'Desarrollado colaborativamente para manejar exportaciones de conversaciones grandes'
+            },
+            fr: {
+                'main-title': 'Claude AI Export Renderer',
+                'subtitle': 'Chargez et explorez vos exportations de conversations Claude avec recherche, filtrage et formatage propre',
+                'choose-file': 'Choisir le fichier d\'exportation Claude',
+                'search-placeholder': 'Rechercher des conversations et des messages (appuyez sur Entrée)...',
+                'sort-by': 'Trier par :',
+                'date-newest': 'Date (Plus récent d\'abord)',
+                'date-oldest': 'Date (Plus ancien d\'abord)',
+                'title-a-z': 'Titre (A-Z)',
+                'title-z-a': 'Titre (Z-A)',
+                'most-messages': 'Plus de messages',
+                'fewest-messages': 'Moins de messages',
+                'date-range': 'Plage de dates :',
+                'all-time': 'Tout le temps',
+                'today': 'Aujourd\'hui',
+                'this-week': 'Cette semaine',
+                'this-month': 'Ce mois',
+                'this-quarter': 'Ce trimestre',
+                'this-year': 'Cette année',
+                'show': 'Afficher :',
+                'all-conversations': 'Toutes les conversations',
+                'with-claude': 'Avec réponses de Claude',
+                'long-conversations': 'Conversations longues (10+ messages)',
+                'recently-updated': 'Récemment mis à jour',
+                'total-conversations': 'Total des conversations',
+                'total-messages': 'Total des messages',
+                'date-range-label': 'Plage de dates',
+                'avg-messages': 'Moy. messages/chat',
+                'search-button': 'Rechercher',
+                'large-file-warning': 'Gros fichier détecté ! Votre exportation est assez volumineuse. Pagination activée pour de meilleures performances.',
+                'processing': 'Traitement de votre exportation Claude...',
+                'no-results': 'Aucune conversation trouvée correspondant à vos critères.',
+                'page': 'Page',
+                'of': 'de',
+                'first': 'Première',
+                'previous': 'Précédente',
+                'next': 'Suivante',
+                'last': 'Dernière',
+                'footer-title': 'Claude AI Export Renderer',
+                'footer-subtitle': 'Conçu pour explorer votre historique de conversations Claude',
+                'footer-features': 'Fonctionnalités : Recherche, filtres, rendu d\'artefacts et pagination pour les gros exports',
+                'footer-issues': 'Problèmes ? Vérifiez la console du navigateur (F12) pour les informations de débogage',
+                'footer-community': 'Créé avec ❤️ pour la communauté Claude',
+                'footer-collaboration': 'Développé en collaboration pour gérer les exportations de conversations volumineuses'
+            }
+        };
+
+        function setLanguage(lang) {
+            // Update all elements with data-i18n attributes
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // Update placeholder text
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+
+            // Update search button text
+            const searchButton = document.querySelector('.search-button');
+            if (searchButton && translations[lang]['search-button']) {
+                searchButton.textContent = translations[lang]['search-button'];
+            }
+
+            // Store language preference
+            localStorage.setItem('claude-renderer-language', lang);
+        }
+
+        function detectAndSetLanguage() {
+            // Check stored preference first
+            let savedLang = localStorage.getItem('claude-renderer-language');
+            if (savedLang && translations[savedLang]) {
+                document.getElementById('languageSelect').value = savedLang;
+                setLanguage(savedLang);
+                return;
+            }
+
+            // Auto-detect browser language
+            const browserLang = navigator.language.toLowerCase();
+            let detectedLang = 'en'; // default
+
+            if (browserLang.startsWith('de')) detectedLang = 'de';
+            else if (browserLang.startsWith('es')) detectedLang = 'es';
+            else if (browserLang.startsWith('fr')) detectedLang = 'fr';
+
+            document.getElementById('languageSelect').value = detectedLang;
+            setLanguage(detectedLang);
+        }
+
         class ClaudeExportRenderer {
             constructor() {
                 this.conversations = [];
@@ -605,6 +848,11 @@
 
             initializeEventListeners() {
                 document.getElementById('fileInput').addEventListener('change', this.handleFileSelect.bind(this));
+                
+                // Language selector
+                document.getElementById('languageSelect').addEventListener('change', (event) => {
+                    setLanguage(event.target.value);
+                });
                 
                 // Search on Enter key only, not on every keystroke
                 const searchBox = document.getElementById('searchBox');
@@ -1352,6 +1600,7 @@
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', () => {
+            detectAndSetLanguage();
             new ClaudeExportRenderer();
         });
     </script>
