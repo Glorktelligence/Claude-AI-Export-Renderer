@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude AI Export Renderer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+
+        .header h1 {
+            color: #f0f0f0;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .file-input-section {
+            margin-bottom: 20px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-button {
+            background: #ff6b35;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .file-input-button:hover {
+            background: #e55a2e;
+        }
+
+        .controls {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            display: none;
+        }
+
+        .search-box {
+            width: calc(100% - 80px);
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px 0 0 8px;
+            color: #e0e0e0;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .search-button {
+            width: 80px;
+            padding: 12px;
+            background: #ff6b35;
+            border: 1px solid #ff6b35;
+            border-radius: 0 8px 8px 0;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .search-button:hover {
+            background: #e55a2e;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #e0e0e0;
+            min-width: 120px;
+        }
+
+        .stats {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            display: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6b35;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+
+        .conversations-list {
+            display: none;
+        }
+
+        .conversation-item {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .conversation-item:hover {
+            border-color: #444;
+        }
+
+        .conversation-header {
+            background: #222;
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .conversation-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f0f0f0;
+        }
+
+        .conversation-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+
+        .conversation-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .conversation-content.expanded {
+            display: block;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid transparent;
+        }
+
+        .message.human {
+            background: #1e2328;
+            border-left-color: #4a9eff;
+        }
+
+        .message.assistant {
+            background: #1a1e1a;
+            border-left-color: #ff6b35;
+        }
+
+        .message-role {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .message.human .message-role {
+            color: #4a9eff;
+        }
+
+        .message.assistant .message-role {
+            color: #ff6b35;
+        }
+
+        .message-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .message-timestamp {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        .expand-toggle {
+            background: none;
+            border: none;
+            color: #ff6b35;
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+
+        .expand-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #b0b0b0;
+        }
+
+        .error {
+            background: #2a1a1a;
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #4a2a2a;
+            margin-bottom: 20px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .conversation-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Highlight search matches */
+        .highlight {
+            background-color: #ff6b35;
+            color: #000;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        /* Code block styling */
+        pre {
+            background: #0a0a0a;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid #333;
+            margin: 10px 0;
+        }
+
+        code {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+        }
+
+        /* Artifact styling */
+        .artifact-header {
+            background: #2a2a2a;
+            padding: 8px 12px;
+            border-radius: 6px 6px 0 0;
+            border: 1px solid #444;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .artifact-icon {
+            font-size: 16px;
+        }
+
+        .artifact-title {
+            font-weight: 600;
+            color: #f0f0f0;
+        }
+
+        .artifact-type {
+            color: #ff6b35;
+            font-size: 12px;
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: auto;
+        }
+
+        .artifact-content {
+            background: #0a0a0a;
+            border: 1px solid #444;
+            border-radius: 0 0 6px 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .artifact-content.markdown-content {
+            background: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .artifact-content.markdown-content h1,
+        .artifact-content.markdown-content h2,
+        .artifact-content.markdown-content h3 {
+            color: #f0f0f0;
+            margin: 15px 0 10px 0;
+        }
+
+        .artifact-content.markdown-content h1 {
+            font-size: 1.5em;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .artifact-content.markdown-content h2 {
+            font-size: 1.3em;
+        }
+
+        .artifact-content.markdown-content h3 {
+            font-size: 1.1em;
+        }
+
+        .footer {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 40px;
+            border: 1px solid #333;
+            text-align: center;
+            display: block;
+        }
+
+        .footer.hidden {
+            display: none;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #ff6b35;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .pagination button {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #3a3a3a;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .current-page {
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        .large-file-warning {
+            background: #2a1a1a;
+            color: #ffaa00;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #4a3a2a;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Claude AI Export Renderer</h1>
+            <p>Load and explore your Claude conversation exports with search, filtering, and clean formatting</p>
+            
+            <div class="file-input-section">
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" class="file-input" accept=".json" />
+                    <button class="file-input-button">Choose Claude Export File</button>
+                </div>
+                <div id="fileName" style="margin-top: 10px; color: #b0b0b0;"></div>
+            </div>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="largeFileWarning" class="large-file-warning">
+            <strong>Large File Detected!</strong> Your export is quite large. Pagination activated for better performance.
+        </div>
+
+        <div id="controls" class="controls">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search conversations and messages (press Enter)..." />
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Sort by:</label>
+                    <select id="sortBy" class="filter-select">
+                        <option value="date-desc">Date (Newest First)</option>
+                        <option value="date-asc">Date (Oldest First)</option>
+                        <option value="title-asc">Title (A-Z)</option>
+                        <option value="title-desc">Title (Z-A)</option>
+                        <option value="messages-desc">Most Messages</option>
+                        <option value="messages-asc">Fewest Messages</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Date Range:</label>
+                    <select id="dateFilter" class="filter-select">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="quarter">This Quarter</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Show:</label>
+                    <select id="showFilter" class="filter-select">
+                        <option value="all">All Conversations</option>
+                        <option value="has-assistant">With Claude Responses</option>
+                        <option value="long">Long Conversations (10+ messages)</option>
+                        <option value="recent">Recently Updated</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="stats" class="stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalConversations">0</div>
+                    <div class="stat-label">Total Conversations</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalMessages">0</div>
+                    <div class="stat-label">Total Messages</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="dateRange">-</div>
+                    <div class="stat-label">Date Range</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgMessages">0</div>
+                    <div class="stat-label">Avg Messages/Chat</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            Processing your Claude export...
+        </div>
+
+        <div id="pagination" class="pagination">
+            <button id="firstPage">First</button>
+            <button id="prevPage">Previous</button>
+            <span class="current-page">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+            <button id="nextPage">Next</button>
+            <button id="lastPage">Last</button>
+        </div>
+
+        <div id="conversationsList" class="conversations-list"></div>
+
+        <div id="pagination2" class="pagination">
+            <button id="firstPage2">First</button>
+            <button id="prevPage2">Previous</button>
+            <span class="current-page">Page <span id="currentPage2">1</span> of <span id="totalPages2">1</span></span>
+            <button id="nextPage2">Next</button>
+            <button id="lastPage2">Last</button>
+        </div>
+    </div>
+
+    <div id="footer" class="footer">
+        <p><strong>Claude AI Export Renderer</strong> - Built for exploring your Claude conversation history</p>
+        <p>Features: Search, filter, artifact rendering, and pagination for large exports</p>
+        <p>Having issues? Check the browser console (F12) for debugging info</p>
+        <p>Created with ❤️ for the Claude community</p>
+        <p>Developed collaboratively to handle large conversation exports</p>
+    </div>
+
+    <script>
+        class ClaudeExportRenderer {
+            constructor() {
+                this.conversations = [];
+                this.filteredConversations = [];
+                this.currentPage = 1;
+                this.conversationsPerPage = 20; // Default page size
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                document.getElementById('fileInput').addEventListener('change', this.handleFileSelect.bind(this));
+                
+                // Search on Enter key only, not on every keystroke
+                const searchBox = document.getElementById('searchBox');
+                searchBox.addEventListener('keypress', (event) => {
+                    if (event.key === 'Enter') {
+                        this.handleSearch(event);
+                    }
+                });
+                
+                // Add search button
+                const searchButton = document.createElement('button');
+                searchButton.textContent = 'Search';
+                searchButton.className = 'search-button';
+                searchButton.addEventListener('click', () => {
+                    this.handleSearch({ target: { value: searchBox.value } });
+                });
+                searchBox.parentNode.insertBefore(searchButton, searchBox.nextSibling);
+                
+                document.getElementById('sortBy').addEventListener('change', this.handleFilterChange.bind(this));
+                document.getElementById('dateFilter').addEventListener('change', this.handleFilterChange.bind(this));
+                document.getElementById('showFilter').addEventListener('change', this.handleFilterChange.bind(this));
+
+                // Pagination event listeners
+                this.addPaginationListeners('');
+                this.addPaginationListeners('2');
+            }
+
+            addPaginationListeners(suffix) {
+                document.getElementById('firstPage' + suffix).addEventListener('click', () => this.goToPage(1));
+                document.getElementById('prevPage' + suffix).addEventListener('click', () => this.goToPage(this.currentPage - 1));
+                document.getElementById('nextPage' + suffix).addEventListener('click', () => this.goToPage(this.currentPage + 1));
+                document.getElementById('lastPage' + suffix).addEventListener('click', () => this.goToPage(this.getTotalPages()));
+            }
+
+            async handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                document.getElementById('fileName').textContent = `Selected: ${file.name} (${this.formatFileSize(file.size)})`;
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('error').style.display = 'none';
+
+                try {
+                    const text = await this.readFile(file);
+                    const data = JSON.parse(text);
+                    this.processConversations(data);
+                    this.showInterface();
+                } catch (error) {
+                    this.showError(`Error processing file: ${error.message}`);
+                } finally {
+                    document.getElementById('loading').style.display = 'none';
+                }
+            }
+
+            readFile(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = e => reject(new Error('Failed to read file'));
+                    reader.readAsText(file);
+                });
+            }
+
+            processConversations(data) {
+                // Handle different export formats
+                let conversations = [];
+                
+                if (Array.isArray(data)) {
+                    conversations = data;
+                } else if (data.conversations) {
+                    conversations = data.conversations;
+                } else if (data.data && Array.isArray(data.data)) {
+                    conversations = data.data;
+                } else {
+                    throw new Error('Unrecognized export format');
+                }
+
+                this.conversations = conversations.map(conv => {
+                    // Normalize conversation structure
+                    const messages = conv.messages || conv.chat_messages || [];
+                    const createdAt = conv.created_at || conv.created || conv.timestamp;
+                    const updatedAt = conv.updated_at || conv.updated || conv.last_modified || createdAt;
+                    
+                    // Generate a better title if it's untitled
+                    let title = conv.name || conv.title || 'Untitled Conversation';
+                    if (title === 'Untitled Conversation' && messages.length > 0) {
+                        // Try to get a meaningful title from the first human message
+                        const firstHumanMessage = messages.find(msg => msg.role === 'human' || msg.role === 'user');
+                        if (firstHumanMessage) {
+                            const content = this.extractTextContent(firstHumanMessage.content);
+                            if (content && content.length > 0) {
+                                // Use first 50 characters as title
+                                title = content.substring(0, 50).trim();
+                                if (content.length > 50) title += '...';
+                                // Clean up the title
+                                title = title.replace(/\n/g, ' ').replace(/\s+/g, ' ');
+                            }
+                        }
+                    }
+                    
+                    return {
+                        ...conv,
+                        id: conv.id || conv.uuid || this.generateId(),
+                        name: title,
+                        created_at: createdAt,
+                        updated_at: updatedAt,
+                        messages: messages.map(msg => ({
+                            ...msg,
+                            role: msg.role || msg.sender || 'unknown',
+                            content: msg.content || msg.text || msg.message || '',
+                            timestamp: msg.timestamp || msg.created_at
+                        }))
+                    };
+                }).filter(conv => {
+                    // Filter out conversations with no meaningful content
+                    if (!conv.messages || conv.messages.length === 0) return false;
+                    
+                    // Check if any message has actual text content
+                    const hasContent = conv.messages.some(msg => {
+                        const content = this.extractTextContent(msg.content);
+                        return content && content.trim().length > 0;
+                    });
+                    
+                    return hasContent;
+                });
+
+                this.filteredConversations = [...this.conversations];
+                this.updateStats();
+                this.renderConversations();
+            }
+
+            generateId() {
+                return Math.random().toString(36).substr(2, 9);
+            }
+
+            showInterface() {
+                document.getElementById('controls').style.display = 'block';
+                document.getElementById('stats').style.display = 'block';
+                document.getElementById('conversationsList').style.display = 'block';
+                
+                // Hide footer when conversations are loaded
+                document.getElementById('footer').classList.add('hidden');
+                
+                // Show large file warning if file is over 50MB or has over 500 conversations
+                const fileSize = this.conversations.length * 1000; // Rough estimate
+                if (this.conversations.length > 500 || fileSize > 50000) {
+                    const warningElement = document.getElementById('largeFileWarning');
+                    warningElement.style.display = 'block';
+                    this.conversationsPerPage = 10; // Smaller page size for large files
+                    
+                    // Auto-hide warning after 7 seconds
+                    setTimeout(() => {
+                        warningElement.style.opacity = '0';
+                        warningElement.style.transition = 'opacity 1s ease-out';
+                        setTimeout(() => {
+                            warningElement.style.display = 'none';
+                        }, 1000); // Wait for fade-out to complete
+                    }, 7000);
+                } else if (this.conversations.length > 100) {
+                    this.conversationsPerPage = 20;
+                } else {
+                    this.conversationsPerPage = 50; // Show more for smaller collections
+                }
+                
+                // Show pagination if needed
+                if (this.filteredConversations.length > this.conversationsPerPage) {
+                    document.getElementById('pagination').style.display = 'flex';
+                    document.getElementById('pagination2').style.display = 'flex';
+                }
+                
+                this.updatePaginationControls();
+            }
+
+            getTotalPages() {
+                return Math.ceil(this.filteredConversations.length / this.conversationsPerPage);
+            }
+
+            goToPage(page) {
+                const totalPages = this.getTotalPages();
+                if (page < 1) page = 1;
+                if (page > totalPages) page = totalPages;
+                
+                this.currentPage = page;
+                this.renderConversations();
+                this.updatePaginationControls();
+                
+                // Scroll to top
+                document.getElementById('conversationsList').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            updatePaginationControls() {
+                const totalPages = this.getTotalPages();
+                const showPagination = totalPages > 1;
+                
+                document.getElementById('pagination').style.display = showPagination ? 'flex' : 'none';
+                document.getElementById('pagination2').style.display = showPagination ? 'flex' : 'none';
+                
+                if (showPagination) {
+                    // Update both pagination controls
+                    ['', '2'].forEach(suffix => {
+                        document.getElementById('currentPage' + suffix).textContent = this.currentPage;
+                        document.getElementById('totalPages' + suffix).textContent = totalPages;
+                        
+                        document.getElementById('firstPage' + suffix).disabled = this.currentPage === 1;
+                        document.getElementById('prevPage' + suffix).disabled = this.currentPage === 1;
+                        document.getElementById('nextPage' + suffix).disabled = this.currentPage === totalPages;
+                        document.getElementById('lastPage' + suffix).disabled = this.currentPage === totalPages;
+                    });
+                }
+            }
+
+            showError(message) {
+                const errorDiv = document.getElementById('error');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+
+            updateStats() {
+                const totalConversations = this.conversations.length;
+                const totalMessages = this.conversations.reduce((sum, conv) => sum + conv.messages.length, 0);
+                
+                const dates = this.conversations
+                    .map(conv => new Date(conv.created_at))
+                    .filter(date => !isNaN(date))
+                    .sort((a, b) => a - b);
+                
+                const dateRange = dates.length > 0 
+                    ? `${this.formatDate(dates[0])} - ${this.formatDate(dates[dates.length - 1])}`
+                    : 'Unknown';
+                
+                const avgMessages = totalConversations > 0 
+                    ? Math.round(totalMessages / totalConversations)
+                    : 0;
+
+                document.getElementById('totalConversations').textContent = totalConversations.toLocaleString();
+                document.getElementById('totalMessages').textContent = totalMessages.toLocaleString();
+                document.getElementById('dateRange').textContent = dateRange;
+                document.getElementById('avgMessages').textContent = avgMessages;
+            }
+
+            handleSearch(event) {
+                const query = event.target.value.toLowerCase().trim();
+                
+                if (!query) {
+                    this.filteredConversations = [...this.conversations];
+                } else {
+                    this.filteredConversations = this.conversations.filter(conv => {
+                        const titleMatch = conv.name.toLowerCase().includes(query);
+                        const messageMatch = conv.messages.some(msg => {
+                            const content = this.extractTextContent(msg.content);
+                            return content.toLowerCase().includes(query);
+                        });
+                        return titleMatch || messageMatch;
+                    });
+                }
+                
+                this.currentPage = 1; // Reset to first page
+                this.applySorting();
+                this.renderConversations();
+            }
+
+            handleFilterChange() {
+                this.currentPage = 1; // Reset to first page
+                this.applyFilters();
+                this.applySorting();
+                this.renderConversations();
+            }
+
+            applyFilters() {
+                const dateFilter = document.getElementById('dateFilter').value;
+                const showFilter = document.getElementById('showFilter').value;
+                const searchQuery = document.getElementById('searchBox').value.toLowerCase().trim();
+                
+                let filtered = [...this.conversations];
+
+                // Apply search filter
+                if (searchQuery) {
+                    filtered = filtered.filter(conv => {
+                        const titleMatch = conv.name.toLowerCase().includes(searchQuery);
+                        const messageMatch = conv.messages.some(msg => {
+                            const content = this.extractTextContent(msg.content);
+                            return content.toLowerCase().includes(searchQuery);
+                        });
+                        return titleMatch || messageMatch;
+                    });
+                }
+
+                // Apply date filter
+                if (dateFilter !== 'all') {
+                    const now = new Date();
+                    const filterDate = new Date();
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            filterDate.setHours(0, 0, 0, 0);
+                            break;
+                        case 'week':
+                            filterDate.setDate(now.getDate() - 7);
+                            break;
+                        case 'month':
+                            filterDate.setMonth(now.getMonth() - 1);
+                            break;
+                        case 'quarter':
+                            filterDate.setMonth(now.getMonth() - 3);
+                            break;
+                        case 'year':
+                            filterDate.setFullYear(now.getFullYear() - 1);
+                            break;
+                    }
+                    
+                    filtered = filtered.filter(conv => {
+                        const convDate = new Date(conv.updated_at || conv.created_at);
+                        return convDate >= filterDate;
+                    });
+                }
+
+                // Apply show filter
+                switch (showFilter) {
+                    case 'has-assistant':
+                        filtered = filtered.filter(conv => 
+                            conv.messages.some(msg => msg.role === 'assistant')
+                        );
+                        break;
+                    case 'long':
+                        filtered = filtered.filter(conv => conv.messages.length >= 10);
+                        break;
+                    case 'recent':
+                        const recentThreshold = new Date();
+                        recentThreshold.setDate(recentThreshold.getDate() - 7);
+                        filtered = filtered.filter(conv => {
+                            const convDate = new Date(conv.updated_at || conv.created_at);
+                            return convDate >= recentThreshold;
+                        });
+                        break;
+                }
+
+                this.filteredConversations = filtered;
+            }
+
+            applySorting() {
+                const sortBy = document.getElementById('sortBy').value;
+                
+                this.filteredConversations.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'date-desc':
+                            return new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at);
+                        case 'date-asc':
+                            return new Date(a.updated_at || a.created_at) - new Date(b.updated_at || b.created_at);
+                        case 'title-asc':
+                            return a.name.localeCompare(b.name);
+                        case 'title-desc':
+                            return b.name.localeCompare(a.name);
+                        case 'messages-desc':
+                            return b.messages.length - a.messages.length;
+                        case 'messages-asc':
+                            return a.messages.length - b.messages.length;
+                        default:
+                            return 0;
+                    }
+                });
+            }
+
+            renderConversations() {
+                const container = document.getElementById('conversationsList');
+                
+                if (this.filteredConversations.length === 0) {
+                    container.innerHTML = '<div class="no-results">No conversations found matching your criteria.</div>';
+                    this.updatePaginationControls();
+                    return;
+                }
+
+                // Calculate pagination
+                const totalPages = this.getTotalPages();
+                const startIndex = (this.currentPage - 1) * this.conversationsPerPage;
+                const endIndex = startIndex + this.conversationsPerPage;
+                const conversationsToShow = this.filteredConversations.slice(startIndex, endIndex);
+
+                container.innerHTML = conversationsToShow.map(conv => 
+                    this.renderConversation(conv)
+                ).join('');
+
+                // Add event listeners for expand/collapse
+                container.querySelectorAll('.conversation-header').forEach(header => {
+                    header.addEventListener('click', this.toggleConversation.bind(this));
+                });
+
+                this.updatePaginationControls();
+            }
+
+            renderConversation(conversation) {
+                const createdDate = this.formatDate(new Date(conversation.created_at));
+                const updatedDate = this.formatDate(new Date(conversation.updated_at || conversation.created_at));
+                const messageCount = conversation.messages.length;
+                
+                const messagesHtml = conversation.messages.map(msg => 
+                    this.renderMessage(msg)
+                ).join('');
+
+                return `
+                    <div class="conversation-item" data-id="${conversation.id}">
+                        <div class="conversation-header">
+                            <div>
+                                <div class="conversation-title">${this.escapeHtml(conversation.name)}</div>
+                                <div class="conversation-meta">
+                                    <span>Created: ${createdDate}</span>
+                                    <span>Updated: ${updatedDate}</span>
+                                    <span>${messageCount} messages</span>
+                                </div>
+                            </div>
+                            <button class="expand-toggle">▼</button>
+                        </div>
+                        <div class="conversation-content">
+                            ${messagesHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderMessage(message) {
+                const role = message.role || 'unknown';
+                const content = this.formatMessageContent(message.content);
+                const timestamp = message.timestamp ? this.formatDate(new Date(message.timestamp)) : '';
+                
+                return `
+                    <div class="message ${role}">
+                        <div class="message-role">${role}</div>
+                        <div class="message-content">${content}</div>
+                        ${timestamp ? `<div class="message-timestamp">${timestamp}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            extractTextContent(content) {
+                if (!content) return '';
+                
+                if (typeof content === 'string') {
+                    // Try to parse as JSON if it looks like tool use data
+                    if (content.trim().startsWith('{"start_timestamp"') || content.trim().startsWith('{"type"')) {
+                        try {
+                            const parsed = JSON.parse(content);
+                            return this.extractFromParsedContent(parsed);
+                        } catch (e) {
+                            return content;
+                        }
+                    }
+                    return content;
+                } else if (Array.isArray(content)) {
+                    // Handle arrays of mixed content
+                    return content.map(item => this.extractTextContent(item)).filter(text => text).join(' ');
+                } else if (typeof content === 'object') {
+                    return this.extractFromParsedContent(content);
+                } else {
+                    return String(content);
+                }
+            }
+
+            extractFromParsedContent(parsed) {
+                if (!parsed) return '';
+                
+                // Handle arrays
+                if (Array.isArray(parsed)) {
+                    return parsed.map(item => this.extractFromParsedContent(item)).filter(text => text).join(' ');
+                }
+                
+                // Handle tool use with artifacts
+                if (parsed.type === 'tool_use' && parsed.name === 'artifacts' && parsed.input) {
+                    const input = parsed.input;
+                    let result = `[Artifact: ${input.title || input.id || 'Untitled'}]`;
+                    if (input.content) {
+                        result += ' ' + input.content;
+                    }
+                    return result;
+                }
+                
+                // Handle other tool uses
+                if (parsed.type === 'tool_use') {
+                    let result = `[Tool: ${parsed.name}]`;
+                    if (parsed.input && typeof parsed.input === 'object') {
+                        if (parsed.input.query) result += ` Query: ${parsed.input.query}`;
+                        if (parsed.input.content) result += ' ' + parsed.input.content;
+                        if (parsed.input.url) result += ` URL: ${parsed.input.url}`;
+                    }
+                    return result;
+                }
+                
+                // Handle text content - check for empty text specifically
+                if (parsed.type === 'text') {
+                    if (parsed.text && String(parsed.text).trim()) {
+                        return parsed.text;
+                    } else {
+                        return ''; // Skip empty text blocks
+                    }
+                }
+                
+                // Handle other message types
+                if (parsed.type === 'tool_result' && parsed.content) return `[Tool Result: ${parsed.content}]`;
+                
+                // Handle direct properties
+                if (parsed.text && String(parsed.text).trim()) return parsed.text;
+                if (parsed.content && String(parsed.content).trim()) return parsed.content;
+                
+                // Skip objects that don't contain meaningful text content
+                return '';
+            }
+
+            formatMessageContent(content) {
+                if (!content) return '';
+                
+                let parts = [];
+                let hasArtifacts = false;
+                
+                if (typeof content === 'string') {
+                    // Try to parse as JSON if it looks like tool use data
+                    if (content.trim().startsWith('{"start_timestamp"') || content.trim().startsWith('{"type"')) {
+                        try {
+                            const parsed = JSON.parse(content);
+                            const result = this.formatParsedContent(parsed);
+                            parts.push(result);
+                            if (result.isArtifact) hasArtifacts = true;
+                        } catch (e) {
+                            parts.push({ content: content, isArtifact: false, artifactType: '', artifactTitle: '' });
+                        }
+                    } else {
+                        parts.push({ content: content, isArtifact: false, artifactType: '', artifactTitle: '' });
+                    }
+                } else if (Array.isArray(content)) {
+                    // Handle arrays of mixed content
+                    content.forEach(item => {
+                        if (typeof item === 'string') {
+                            if (item.trim()) {
+                                parts.push({ content: item, isArtifact: false, artifactType: '', artifactTitle: '' });
+                            }
+                        } else if (typeof item === 'object') {
+                            const result = this.formatParsedContent(item);
+                            if (result.content && String(result.content).trim()) {
+                                parts.push(result);
+                                if (result.isArtifact) hasArtifacts = true;
+                            }
+                        }
+                    });
+                } else if (typeof content === 'object') {
+                    const result = this.formatParsedContent(content);
+                    parts.push(result);
+                    if (result.isArtifact) hasArtifacts = true;
+                } else {
+                    parts.push({ content: String(content), isArtifact: false, artifactType: '', artifactTitle: '' });
+                }
+                
+                // Format each part
+                let formattedParts = parts.map(part => {
+                    if (!part.content || !String(part.content).trim()) return '';
+                    
+                    let formatted = this.escapeHtml(String(part.content));
+                    
+                    if (part.isArtifact) {
+                        const header = `<div class="artifact-header">
+                            <span class="artifact-icon">📄</span>
+                            <span class="artifact-title">${this.escapeHtml(part.artifactTitle)}</span>
+                            <span class="artifact-type">${this.escapeHtml(part.artifactType)}</span>
+                        </div>`;
+                        
+                        if (part.artifactType === 'text/markdown' || part.artifactType === 'markdown') {
+                            formatted = header + '<div class="artifact-content markdown-content">' + this.formatMarkdown(formatted) + '</div>';
+                        } else if (part.artifactType === 'text/html' || part.artifactType === 'html') {
+                            formatted = header + '<div class="artifact-content html-content"><pre><code>' + formatted + '</code></pre></div>';
+                        } else if (part.artifactType === 'text/javascript' || part.artifactType === 'javascript' || part.artifactType === 'code') {
+                            formatted = header + '<div class="artifact-content code-content"><pre><code>' + formatted + '</code></pre></div>';
+                        } else {
+                            formatted = header + '<div class="artifact-content"><pre><code>' + formatted + '</code></pre></div>';
+                        }
+                    } else {
+                        // Regular content formatting
+                        formatted = this.formatMarkdown(formatted);
+                    }
+                    
+                    return formatted;
+                }).filter(part => part && part.trim());
+                
+                let result = formattedParts.join('\n\n');
+                
+                // Highlight search matches
+                const searchQuery = document.getElementById('searchBox').value.trim();
+                if (searchQuery) {
+                    const regex = new RegExp(`(${this.escapeRegex(searchQuery)})`, 'gi');
+                    result = result.replace(regex, '<span class="highlight">$1</span>');
+                }
+                
+                return result;
+            }
+
+            formatParsedContent(parsed) {
+                if (!parsed) return { content: '', isArtifact: false, artifactType: '', artifactTitle: '' };
+                
+                // Handle tool use with artifacts
+                if (parsed.type === 'tool_use' && parsed.name === 'artifacts' && parsed.input) {
+                    const input = parsed.input;
+                    return {
+                        content: input.content || '[No content]',
+                        isArtifact: true,
+                        artifactType: input.type || 'unknown',
+                        artifactTitle: input.title || input.id || 'Untitled Artifact'
+                    };
+                }
+                
+                // Handle other tool uses
+                if (parsed.type === 'tool_use') {
+                    let content = `🔧 Tool: ${parsed.name}\n`;
+                    if (parsed.input && typeof parsed.input === 'object') {
+                        if (parsed.input.query) content += `Query: ${parsed.input.query}\n`;
+                        if (parsed.input.url) content += `URL: ${parsed.input.url}\n`;
+                        if (parsed.input.content) content += parsed.input.content;
+                        else {
+                            // Show relevant input parameters
+                            const relevantKeys = Object.keys(parsed.input).filter(key => 
+                                key !== 'start_timestamp' && key !== 'stop_timestamp' && key !== 'flags'
+                            );
+                            if (relevantKeys.length > 0) {
+                                content += relevantKeys.map(key => `${key}: ${parsed.input[key]}`).join('\n');
+                            }
+                        }
+                    }
+                    return { content, isArtifact: false, artifactType: '', artifactTitle: '' };
+                }
+                
+                // Handle text content - check for empty text specifically
+                if (parsed.type === 'text') {
+                    const text = parsed.text || '';
+                    if (String(text).trim()) {
+                        return { content: text, isArtifact: false, artifactType: '', artifactTitle: '' };
+                    } else {
+                        return { content: '', isArtifact: false, artifactType: '', artifactTitle: '' };
+                    }
+                }
+                
+                // Handle arrays
+                if (Array.isArray(parsed)) {
+                    const contents = parsed.map(item => this.formatParsedContent(item).content).filter(c => c.trim());
+                    return { content: contents.join('\n\n'), isArtifact: false, artifactType: '', artifactTitle: '' };
+                }
+                
+                // Handle direct properties
+                if (parsed.text && String(parsed.text).trim()) {
+                    return { content: parsed.text, isArtifact: false, artifactType: '', artifactTitle: '' };
+                }
+                if (parsed.content && String(parsed.content).trim()) {
+                    return { content: parsed.content, isArtifact: false, artifactType: '', artifactTitle: '' };
+                }
+                
+                // Handle objects we don't recognize - don't show [object Object]
+                if (typeof parsed === 'object') {
+                    // Check if it's just metadata without useful content
+                    const hasOnlyMetadata = Object.keys(parsed).every(key => 
+                        ['start_timestamp', 'stop_timestamp', 'flags', 'type', 'citations'].includes(key)
+                    );
+                    
+                    if (hasOnlyMetadata || parsed.type === 'token_budget') {
+                        return { content: '', isArtifact: false, artifactType: '', artifactTitle: '' };
+                    }
+                    
+                    // For other objects, try to extract something useful
+                    try {
+                        const useful = JSON.stringify(parsed, null, 2);
+                        return { content: `[Debug: ${useful}]`, isArtifact: false, artifactType: '', artifactTitle: '' };
+                    } catch (e) {
+                        return { content: '[Complex object - unable to display]', isArtifact: false, artifactType: '', artifactTitle: '' };
+                    }
+                }
+                
+                return { content: '', isArtifact: false, artifactType: '', artifactTitle: '' };
+            }
+
+            formatMarkdown(text) {
+                // Simple markdown formatting
+                let formatted = text;
+                
+                // Code blocks
+                formatted = formatted.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
+                formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+                
+                // Inline code
+                formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+                
+                // Headers
+                formatted = formatted.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+                formatted = formatted.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+                formatted = formatted.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+                
+                // Bold and italic
+                formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                // Line breaks
+                formatted = formatted.replace(/\n/g, '<br>');
+                
+                return formatted;
+            }
+
+            toggleConversation(event) {
+                const header = event.currentTarget;
+                const content = header.nextElementSibling;
+                const toggle = header.querySelector('.expand-toggle');
+                
+                if (content.classList.contains('expanded')) {
+                    content.classList.remove('expanded');
+                    toggle.classList.remove('expanded');
+                } else {
+                    content.classList.add('expanded');
+                    toggle.classList.add('expanded');
+                }
+            }
+
+            formatDate(date) {
+                if (isNaN(date)) return 'Unknown';
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            escapeHtml(text) {
+                // Filter out [object Object] strings entirely
+                if (text === '[object Object]') {
+                    return '';
+                }
+                
+                const div = document.createElement('div');
+                div.textContent = text;
+                const result = div.innerHTML;
+                
+                return result;
+            }
+
+            escapeRegex(string) {
+                return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            new ClaudeExportRenderer();
+        });
+    </script>
+</body>
+</html>
