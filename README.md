@@ -5,7 +5,7 @@ A web-based tool for viewing and exploring Claude conversation exports with sear
 
 ## Recent Updates
 
-**Version 1.0.1** - Added complete multilingual support with automatic language detection for English, German, Spanish, and French. See [CHANGELOG.md](https://claude.ai/chat/CHANGELOG.md) for full version history.
+**Version 1.0.1** - Added complete multilingual support with automatic language detection for English, German, Spanish, and French. See [CHANGELOG.md](https://github.com/Glorktelligence/Claude-AI-Export-Renderer/blob/main/CHANGELOG.md) for full version history.
 
 ## Legal Disclaimer
 
