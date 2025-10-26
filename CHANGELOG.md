@@ -5,6 +5,61 @@ All notable changes to the Claude AI Export Renderer will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-10-26
+
+### Added
+- **Complete Export System**: Comprehensive conversation export functionality with multiple options
+  - Export filtered conversations with proper JSON formatting
+  - Export selected conversations with bulk selection tools
+  - Export individual conversations with hover button (💾 icon)
+- **Selection Mode**: Toggle-based selection system with progressive disclosure
+  - Enable/Disable Selection Mode button
+  - Individual conversation checkboxes
+  - Bulk actions bar with selection count
+- **Bulk Selection Tools**:
+  - Select All (all filtered conversations)
+  - Select All Visible (current page only)
+  - Clear Selection
+- **Export Settings Modal**: Fully customizable export preferences
+  - Date format options (YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY, or no date)
+  - Max title length in filename (20-100 characters)
+  - JSON indentation (2 or 4 spaces)
+  - Timestamp inclusion toggle
+  - Settings persistence with localStorage
+  - Reset to defaults functionality
+- **Export Progress Indicators**: Visual feedback during export operations
+  - Animated spinner overlay
+  - Status text with conversation count
+  - Auto-dismiss on completion
+  - Error handling with user-friendly messages
+- **Collapsible Code Sections**: Improved readability for long conversations
+  - Collapsible artifacts (default: collapsed)
+  - Collapsible code blocks (default: collapsed)
+  - Language labels for code blocks
+  - Smooth expand/collapse animations
+
+### Improved
+- **File Naming Conventions**: Smart, customizable filename generation
+  - Sanitized conversation titles in filenames
+  - Configurable date formats
+  - Optional timestamps
+  - Prevents overly long filenames
+- **User Experience**: Enhanced interface and workflow
+  - Hover-activated export buttons (minimal footprint)
+  - Settings gear icon (⚙️) next to language selector
+  - Click outside to close modal
+  - Clear visual feedback for all actions
+
+### Technical Details
+- Single-file architecture maintained (~2,500 lines)
+- Export format maintains compatibility with Anthropic's JSON structure
+- All processing remains client-side (no external dependencies)
+- Settings stored in browser localStorage
+- Proper JSON indentation (user-configurable)
+- File naming sanitization for cross-platform compatibility
+- Progress indicators use setTimeout for non-blocking UI updates
+- Full i18n support for all new features (EN, DE, ES, FR)
+
 ## [1.0.1] - 2025-10-23
 
 ### Added

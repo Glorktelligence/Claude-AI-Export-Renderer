@@ -277,6 +277,36 @@
             transform: rotate(180deg);
         }
 
+        /* Individual conversation export button */
+        .conversation-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .export-single-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .conversation-header:hover .export-single-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .export-single-btn:hover {
+            background: #2a5a8a;
+            color: #fff;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -343,17 +373,44 @@
         }
 
         /* Artifact styling */
+        .artifact-container {
+            margin: 10px 0;
+            border: 1px solid #444;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
         .artifact-header {
             background: #2a2a2a;
             padding: 8px 12px;
-            border-radius: 6px 6px 0 0;
-            border: 1px solid #444;
-            border-bottom: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .artifact-header:hover {
+            background: #333;
+        }
+
+        .artifact-header-left {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
-            margin-top: 10px;
+        }
+
+        .artifact-toggle {
+            color: #ff6b35;
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .artifact-toggle.expanded {
+            transform: rotate(180deg);
         }
 
         .artifact-icon {
@@ -375,11 +432,18 @@
         }
 
         .artifact-content {
+            display: none;
             background: #0a0a0a;
-            border: 1px solid #444;
-            border-radius: 0 0 6px 6px;
             padding: 12px;
-            margin-bottom: 10px;
+            border-top: 1px solid #444;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .artifact-content.expanded {
+            display: block;
+            max-height: none;
         }
 
         .artifact-content.markdown-content {
@@ -406,6 +470,268 @@
 
         .artifact-content.markdown-content h3 {
             font-size: 1.1em;
+        }
+
+        /* Collapsible code block styling */
+        .collapsible-code-block {
+            margin: 10px 0;
+            border: 1px solid #333;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .code-block-header {
+            background: #2a2a2a;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .code-block-header:hover {
+            background: #333;
+        }
+
+        .code-block-label {
+            font-size: 12px;
+            color: #888;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .code-block-toggle {
+            color: #ff6b35;
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .code-block-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .code-block-content {
+            display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .code-block-content.expanded {
+            display: block;
+            max-height: none;
+        }
+
+        .collapsible-code-block .code-block-content pre {
+            margin: 0;
+            border: none;
+            border-radius: 0;
+            border-top: 1px solid #333;
+        }
+
+        /* Settings Modal */
+        .settings-btn {
+            background: none;
+            border: 1px solid #444;
+            color: #888;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+
+        .settings-btn:hover {
+            background: #2a2a2a;
+            color: #ff6b35;
+            border-color: #ff6b35;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .modal-header h2 {
+            color: #f0f0f0;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 24px;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #ff6b35;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            color: #b0b0b0;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .settings-group input[type="number"],
+        .settings-group select {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .settings-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-description {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.primary {
+            background: #ff6b35;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: #e55a2e;
+        }
+
+        .modal-btn.secondary {
+            background: #2a2a2a;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #3a3a3a;
+        }
+
+        /* Progress Indicator */
+        .progress-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .progress-overlay.active {
+            display: flex;
+        }
+
+        .progress-container {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .progress-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #333;
+            border-top: 4px solid #ff6b35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-text {
+            color: #e0e0e0;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .progress-subtext {
+            color: #888;
+            font-size: 14px;
         }
 
         .footer {
@@ -478,6 +804,135 @@
             margin-bottom: 20px;
             display: none;
         }
+
+        /* Selection Mode Styles */
+        .selection-controls {
+            display: none;
+        }
+
+        .selection-toggle-btn {
+            background: #2a5a8a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .selection-toggle-btn:hover {
+            background: #3a6a9a;
+        }
+
+        .selection-toggle-btn.active {
+            background: #ff6b35;
+        }
+
+        .selection-toggle-btn.active:hover {
+            background: #e55a2e;
+        }
+
+        .bulk-actions-bar {
+            display: none;
+            background: #1a1a1a;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .bulk-actions-bar.active {
+            display: flex;
+        }
+
+        .bulk-actions-bar .selection-count {
+            color: #ff6b35;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .bulk-action-btn {
+            background: #2a2a2a;
+            color: #e0e0e0;
+            padding: 8px 16px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .bulk-action-btn:hover {
+            background: #3a3a3a;
+            border-color: #555;
+        }
+
+        .bulk-action-btn.primary {
+            background: #ff6b35;
+            border-color: #ff6b35;
+        }
+
+        .bulk-action-btn.primary:hover {
+            background: #e55a2e;
+        }
+
+        .bulk-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .conversation-checkbox {
+            display: none;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        .selection-mode .conversation-checkbox {
+            display: inline-block;
+        }
+
+        .conversation-header-left {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .conversation-header-content {
+            flex: 1;
+        }
+
+        .export-buttons {
+            display: none;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .export-btn {
+            background: #2a5a8a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #3a6a9a;
+        }
+
+        .export-btn:disabled {
+            background: #1a1a1a;
+            color: #666;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -495,14 +950,73 @@
                     <div id="fileName" style="margin-top: 10px; color: #b0b0b0;"></div>
                 </div>
                 
-                <div class="language-selector">
+                <div class="language-selector" style="display: flex; align-items: center;">
                     <select id="languageSelect" style="padding: 8px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #e0e0e0;">
                         <option value="en">English</option>
                         <option value="de">Deutsch</option>
                         <option value="es">Español</option>
                         <option value="fr">Français</option>
                     </select>
+                    <button id="settingsBtn" class="settings-btn" title="Export Settings">⚙️</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 data-i18n="settings-title">Export Settings</h2>
+                    <button class="modal-close" id="closeSettings">×</button>
+                </div>
+
+                <div class="settings-group">
+                    <label data-i18n="date-format-label">Date Format in Filename</label>
+                    <select id="dateFormat">
+                        <option value="YYYY-MM-DD" data-i18n="date-format-iso">YYYY-MM-DD (2024-10-26)</option>
+                        <option value="DD-MM-YYYY" data-i18n="date-format-eu">DD-MM-YYYY (26-10-2024)</option>
+                        <option value="MM-DD-YYYY" data-i18n="date-format-us">MM-DD-YYYY (10-26-2024)</option>
+                        <option value="none" data-i18n="date-format-none">No Date</option>
+                    </select>
+                    <div class="settings-description" data-i18n="date-format-desc">Choose how dates appear in exported filenames</div>
+                </div>
+
+                <div class="settings-group">
+                    <label data-i18n="title-length-label">Max Title Length in Filename</label>
+                    <input type="number" id="titleLength" min="20" max="100" value="50" />
+                    <div class="settings-description" data-i18n="title-length-desc">Maximum characters from conversation title in filename (20-100)</div>
+                </div>
+
+                <div class="settings-group">
+                    <label data-i18n="json-indent-label">JSON Indentation</label>
+                    <select id="jsonIndent">
+                        <option value="2">2 spaces</option>
+                        <option value="4">4 spaces</option>
+                    </select>
+                    <div class="settings-description" data-i18n="json-indent-desc">Spaces for JSON formatting (2 or 4)</div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="includeTimestamp" checked />
+                        <label for="includeTimestamp" data-i18n="include-timestamp-label">Include Time in Filename</label>
+                    </div>
+                    <div class="settings-description" data-i18n="include-timestamp-desc">Add timestamp to filename (e.g., 2024-10-26-14-30)</div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="modal-btn secondary" id="resetSettings" data-i18n="reset-settings">Reset to Defaults</button>
+                    <button class="modal-btn primary" id="saveSettings" data-i18n="save-settings">Save Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div id="progressOverlay" class="progress-overlay">
+            <div class="progress-container">
+                <div class="progress-spinner"></div>
+                <div class="progress-text" id="progressText" data-i18n="exporting">Exporting...</div>
+                <div class="progress-subtext" id="progressSubtext"></div>
             </div>
         </div>
 
@@ -571,6 +1085,37 @@
                     <div class="stat-label" data-i18n="avg-messages">Avg Messages/Chat</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="export-buttons" id="exportButtons">
+            <button id="exportFiltered" class="export-btn" data-i18n="export-filtered">
+                Export Filtered Conversations
+            </button>
+        </div>
+
+        <!-- Selection Mode Controls -->
+        <div class="selection-controls" id="selectionControls">
+            <button id="selectionToggle" class="selection-toggle-btn" data-i18n="enable-selection">
+                Enable Selection Mode
+            </button>
+        </div>
+
+        <!-- Bulk Actions Bar -->
+        <div id="bulkActionsBar" class="bulk-actions-bar">
+            <span class="selection-count" id="selectionCount">0 selected</span>
+            <button id="selectAll" class="bulk-action-btn" data-i18n="select-all">
+                Select All
+            </button>
+            <button id="selectAllVisible" class="bulk-action-btn" data-i18n="select-all-visible">
+                Select All Visible
+            </button>
+            <button id="clearSelection" class="bulk-action-btn" data-i18n="clear-selection">
+                Clear Selection
+            </button>
+            <button id="exportSelected" class="bulk-action-btn primary" data-i18n="export-selected" disabled>
+                Export Selected
+            </button>
         </div>
 
         <div id="loading" class="loading" style="display: none;">
@@ -650,7 +1195,30 @@
                 'footer-features': 'Features: Search, filter, artifact rendering, and pagination for large exports',
                 'footer-issues': 'Having issues? Check the browser console (F12) for debugging info',
                 'footer-community': 'Created with ❤️ for the Claude community',
-                'footer-collaboration': 'Developed collaboratively to handle large conversation exports'
+                'footer-collaboration': 'Developed collaboratively to handle large conversation exports',
+                'enable-selection': 'Enable Selection Mode',
+                'disable-selection': 'Disable Selection Mode',
+                'select-all': 'Select All',
+                'select-all-visible': 'Select All Visible',
+                'clear-selection': 'Clear Selection',
+                'export-selected': 'Export Selected',
+                'export-filtered': 'Export Filtered Conversations',
+                'settings-title': 'Export Settings',
+                'date-format-label': 'Date Format in Filename',
+                'date-format-iso': 'YYYY-MM-DD (2024-10-26)',
+                'date-format-eu': 'DD-MM-YYYY (26-10-2024)',
+                'date-format-us': 'MM-DD-YYYY (10-26-2024)',
+                'date-format-none': 'No Date',
+                'date-format-desc': 'Choose how dates appear in exported filenames',
+                'title-length-label': 'Max Title Length in Filename',
+                'title-length-desc': 'Maximum characters from conversation title in filename (20-100)',
+                'json-indent-label': 'JSON Indentation',
+                'json-indent-desc': 'Spaces for JSON formatting (2 or 4)',
+                'include-timestamp-label': 'Include Time in Filename',
+                'include-timestamp-desc': 'Add timestamp to filename (e.g., 2024-10-26-14-30)',
+                'reset-settings': 'Reset to Defaults',
+                'save-settings': 'Save Settings',
+                'exporting': 'Exporting...'
             },
             de: {
                 'main-title': 'Claude AI Export Renderer',
@@ -695,7 +1263,30 @@
                 'footer-features': 'Funktionen: Suche, Filter, Artefakt-Darstellung und Paginierung für große Exporte',
                 'footer-issues': 'Probleme? Überprüfen Sie die Browser-Konsole (F12) für Debugging-Informationen',
                 'footer-community': 'Mit ❤️ für die Claude-Community erstellt',
-                'footer-collaboration': 'Kollaborativ entwickelt, um große Konversationsexporte zu handhaben'
+                'footer-collaboration': 'Kollaborativ entwickelt, um große Konversationsexporte zu handhaben',
+                'enable-selection': 'Auswahlmodus aktivieren',
+                'disable-selection': 'Auswahlmodus deaktivieren',
+                'select-all': 'Alle auswählen',
+                'select-all-visible': 'Alle sichtbaren auswählen',
+                'clear-selection': 'Auswahl löschen',
+                'export-selected': 'Ausgewählte exportieren',
+                'export-filtered': 'Gefilterte Konversationen exportieren',
+                'settings-title': 'Export-Einstellungen',
+                'date-format-label': 'Datumsformat im Dateinamen',
+                'date-format-iso': 'JJJJ-MM-TT (2024-10-26)',
+                'date-format-eu': 'TT-MM-JJJJ (26-10-2024)',
+                'date-format-us': 'MM-TT-JJJJ (10-26-2024)',
+                'date-format-none': 'Kein Datum',
+                'date-format-desc': 'Wählen Sie das Datumsformat für exportierte Dateinamen',
+                'title-length-label': 'Max. Titellänge im Dateinamen',
+                'title-length-desc': 'Maximale Zeichen vom Konversationstitel im Dateinamen (20-100)',
+                'json-indent-label': 'JSON-Einrückung',
+                'json-indent-desc': 'Leerzeichen für JSON-Formatierung (2 oder 4)',
+                'include-timestamp-label': 'Zeit im Dateinamen einschließen',
+                'include-timestamp-desc': 'Zeitstempel zum Dateinamen hinzufügen (z.B. 2024-10-26-14-30)',
+                'reset-settings': 'Auf Standard zurücksetzen',
+                'save-settings': 'Einstellungen speichern',
+                'exporting': 'Exportiere...'
             },
             es: {
                 'main-title': 'Claude AI Export Renderer',
@@ -740,7 +1331,30 @@
                 'footer-features': 'Características: Búsqueda, filtros, renderizado de artefactos y paginación para exportaciones grandes',
                 'footer-issues': '¿Tienes problemas? Revisa la consola del navegador (F12) para información de depuración',
                 'footer-community': 'Creado con ❤️ para la comunidad de Claude',
-                'footer-collaboration': 'Desarrollado colaborativamente para manejar exportaciones de conversaciones grandes'
+                'footer-collaboration': 'Desarrollado colaborativamente para manejar exportaciones de conversaciones grandes',
+                'enable-selection': 'Activar modo de selección',
+                'disable-selection': 'Desactivar modo de selección',
+                'select-all': 'Seleccionar todas',
+                'select-all-visible': 'Seleccionar todas las visibles',
+                'clear-selection': 'Limpiar selección',
+                'export-selected': 'Exportar seleccionadas',
+                'export-filtered': 'Exportar conversaciones filtradas',
+                'settings-title': 'Configuración de Exportación',
+                'date-format-label': 'Formato de Fecha en el Nombre de Archivo',
+                'date-format-iso': 'AAAA-MM-DD (2024-10-26)',
+                'date-format-eu': 'DD-MM-AAAA (26-10-2024)',
+                'date-format-us': 'MM-DD-AAAA (10-26-2024)',
+                'date-format-none': 'Sin Fecha',
+                'date-format-desc': 'Elige cómo aparecen las fechas en los nombres de archivo exportados',
+                'title-length-label': 'Longitud Máxima del Título en el Nombre',
+                'title-length-desc': 'Caracteres máximos del título de conversación en el nombre de archivo (20-100)',
+                'json-indent-label': 'Indentación JSON',
+                'json-indent-desc': 'Espacios para formato JSON (2 o 4)',
+                'include-timestamp-label': 'Incluir Hora en el Nombre de Archivo',
+                'include-timestamp-desc': 'Agregar marca de tiempo al nombre de archivo (ej. 2024-10-26-14-30)',
+                'reset-settings': 'Restablecer Valores Predeterminados',
+                'save-settings': 'Guardar Configuración',
+                'exporting': 'Exportando...'
             },
             fr: {
                 'main-title': 'Claude AI Export Renderer',
@@ -785,7 +1399,30 @@
                 'footer-features': 'Fonctionnalités : Recherche, filtres, rendu d\'artefacts et pagination pour les gros exports',
                 'footer-issues': 'Problèmes ? Vérifiez la console du navigateur (F12) pour les informations de débogage',
                 'footer-community': 'Créé avec ❤️ pour la communauté Claude',
-                'footer-collaboration': 'Développé en collaboration pour gérer les exportations de conversations volumineuses'
+                'footer-collaboration': 'Développé en collaboration pour gérer les exportations de conversations volumineuses',
+                'enable-selection': 'Activer le mode sélection',
+                'disable-selection': 'Désactiver le mode sélection',
+                'select-all': 'Tout sélectionner',
+                'select-all-visible': 'Sélectionner tout le visible',
+                'clear-selection': 'Effacer la sélection',
+                'export-selected': 'Exporter la sélection',
+                'export-filtered': 'Exporter les conversations filtrées',
+                'settings-title': 'Paramètres d\'Exportation',
+                'date-format-label': 'Format de Date dans le Nom de Fichier',
+                'date-format-iso': 'AAAA-MM-JJ (2024-10-26)',
+                'date-format-eu': 'JJ-MM-AAAA (26-10-2024)',
+                'date-format-us': 'MM-JJ-AAAA (10-26-2024)',
+                'date-format-none': 'Pas de Date',
+                'date-format-desc': 'Choisissez comment les dates apparaissent dans les noms de fichiers exportés',
+                'title-length-label': 'Longueur Max du Titre dans le Nom',
+                'title-length-desc': 'Caractères maximum du titre de conversation dans le nom de fichier (20-100)',
+                'json-indent-label': 'Indentation JSON',
+                'json-indent-desc': 'Espaces pour le formatage JSON (2 ou 4)',
+                'include-timestamp-label': 'Inclure l\'Heure dans le Nom de Fichier',
+                'include-timestamp-desc': 'Ajouter l\'horodatage au nom de fichier (ex. 2024-10-26-14-30)',
+                'reset-settings': 'Réinitialiser aux Valeurs par Défaut',
+                'save-settings': 'Enregistrer les Paramètres',
+                'exporting': 'Exportation en cours...'
             }
         };
 
@@ -843,6 +1480,11 @@
                 this.filteredConversations = [];
                 this.currentPage = 1;
                 this.conversationsPerPage = 20; // Default page size
+                // Selection mode state
+                this.selectionMode = false;
+                this.selectedConversations = new Set();
+                // Export settings
+                this.loadSettings();
                 this.initializeEventListeners();
             }
 
@@ -874,6 +1516,24 @@
                 document.getElementById('sortBy').addEventListener('change', this.handleFilterChange.bind(this));
                 document.getElementById('dateFilter').addEventListener('change', this.handleFilterChange.bind(this));
                 document.getElementById('showFilter').addEventListener('change', this.handleFilterChange.bind(this));
+
+                // Selection mode event listeners
+                document.getElementById('selectionToggle').addEventListener('click', this.toggleSelectionMode.bind(this));
+                document.getElementById('selectAll').addEventListener('click', this.selectAll.bind(this));
+                document.getElementById('selectAllVisible').addEventListener('click', this.selectAllVisible.bind(this));
+                document.getElementById('clearSelection').addEventListener('click', this.clearSelection.bind(this));
+                document.getElementById('exportSelected').addEventListener('click', this.exportSelected.bind(this));
+                document.getElementById('exportFiltered').addEventListener('click', this.exportFiltered.bind(this));
+
+                // Settings modal event listeners
+                document.getElementById('settingsBtn').addEventListener('click', this.openSettings.bind(this));
+                document.getElementById('closeSettings').addEventListener('click', this.closeSettings.bind(this));
+                document.getElementById('saveSettings').addEventListener('click', this.saveSettings.bind(this));
+                document.getElementById('resetSettings').addEventListener('click', this.resetSettings.bind(this));
+                // Close modal on overlay click
+                document.getElementById('settingsModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'settingsModal') this.closeSettings();
+                });
 
                 // Pagination event listeners
                 this.addPaginationListeners('');
@@ -992,7 +1652,10 @@
                 document.getElementById('controls').style.display = 'block';
                 document.getElementById('stats').style.display = 'block';
                 document.getElementById('conversationsList').style.display = 'block';
-                
+                // Show export and selection controls
+                document.getElementById('exportButtons').style.display = 'flex';
+                document.getElementById('selectionControls').style.display = 'block';
+
                 // Hide footer when conversations are loaded
                 document.getElementById('footer').classList.add('hidden');
                 
@@ -1246,23 +1909,40 @@
                 const createdDate = this.formatDate(new Date(conversation.created_at));
                 const updatedDate = this.formatDate(new Date(conversation.updated_at || conversation.created_at));
                 const messageCount = conversation.messages.length;
-                
-                const messagesHtml = conversation.messages.map(msg => 
+
+                const messagesHtml = conversation.messages.map(msg =>
                     this.renderMessage(msg)
                 ).join('');
+
+                // Add checkbox if selection mode is active
+                const checkbox = this.selectionMode ? `
+                    <input
+                        type="checkbox"
+                        class="conversation-checkbox"
+                        id="checkbox-${conversation.id}"
+                        ${this.selectedConversations.has(conversation.id) ? 'checked' : ''}
+                        onclick="event.stopPropagation(); app.toggleConversationSelection('${conversation.id}')"
+                    />
+                ` : '';
 
                 return `
                     <div class="conversation-item" data-id="${conversation.id}">
                         <div class="conversation-header">
-                            <div>
-                                <div class="conversation-title">${this.escapeHtml(conversation.name)}</div>
-                                <div class="conversation-meta">
-                                    <span>Created: ${createdDate}</span>
-                                    <span>Updated: ${updatedDate}</span>
-                                    <span>${messageCount} messages</span>
+                            <div class="conversation-header-left">
+                                ${checkbox}
+                                <div class="conversation-header-content">
+                                    <div class="conversation-title">${this.escapeHtml(conversation.name)}</div>
+                                    <div class="conversation-meta">
+                                        <span>Created: ${createdDate}</span>
+                                        <span>Updated: ${updatedDate}</span>
+                                        <span>${messageCount} messages</span>
+                                    </div>
                                 </div>
                             </div>
-                            <button class="expand-toggle">▼</button>
+                            <div class="conversation-header-actions">
+                                <button class="export-single-btn" onclick="event.stopPropagation(); app.exportSingleConversation('${conversation.id}')" title="Export this conversation">💾</button>
+                                <button class="expand-toggle">▼</button>
+                            </div>
                         </div>
                         <div class="conversation-content">
                             ${messagesHtml}
@@ -1408,21 +2088,28 @@
                     let formatted = this.escapeHtml(String(part.content));
                     
                     if (part.isArtifact) {
-                        const header = `<div class="artifact-header">
-                            <span class="artifact-icon">📄</span>
-                            <span class="artifact-title">${this.escapeHtml(part.artifactTitle)}</span>
-                            <span class="artifact-type">${this.escapeHtml(part.artifactType)}</span>
+                        const artifactId = 'artifact-' + Math.random().toString(36).substr(2, 9);
+                        const header = `<div class="artifact-header" onclick="app.toggleArtifact('${artifactId}')">
+                            <div class="artifact-header-left">
+                                <span class="artifact-icon">📄</span>
+                                <span class="artifact-title">${this.escapeHtml(part.artifactTitle)}</span>
+                                <span class="artifact-type">${this.escapeHtml(part.artifactType)}</span>
+                            </div>
+                            <span class="artifact-toggle" id="${artifactId}-toggle">▼</span>
                         </div>`;
-                        
+
+                        let content = '';
                         if (part.artifactType === 'text/markdown' || part.artifactType === 'markdown') {
-                            formatted = header + '<div class="artifact-content markdown-content">' + this.formatMarkdown(formatted) + '</div>';
+                            content = '<div class="artifact-content markdown-content" id="' + artifactId + '">' + this.formatMarkdown(formatted) + '</div>';
                         } else if (part.artifactType === 'text/html' || part.artifactType === 'html') {
-                            formatted = header + '<div class="artifact-content html-content"><pre><code>' + formatted + '</code></pre></div>';
+                            content = '<div class="artifact-content html-content" id="' + artifactId + '"><pre><code>' + formatted + '</code></pre></div>';
                         } else if (part.artifactType === 'text/javascript' || part.artifactType === 'javascript' || part.artifactType === 'code') {
-                            formatted = header + '<div class="artifact-content code-content"><pre><code>' + formatted + '</code></pre></div>';
+                            content = '<div class="artifact-content code-content" id="' + artifactId + '"><pre><code>' + formatted + '</code></pre></div>';
                         } else {
-                            formatted = header + '<div class="artifact-content"><pre><code>' + formatted + '</code></pre></div>';
+                            content = '<div class="artifact-content" id="' + artifactId + '"><pre><code>' + formatted + '</code></pre></div>';
                         }
+
+                        formatted = '<div class="artifact-container">' + header + content + '</div>';
                     } else {
                         // Regular content formatting
                         formatted = this.formatMarkdown(formatted);
@@ -1527,11 +2214,22 @@
             formatMarkdown(text) {
                 // Simple markdown formatting
                 let formatted = text;
-                
-                // Code blocks
-                formatted = formatted.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
-                formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-                
+
+                // Code blocks with language - wrap in collapsible container
+                formatted = formatted.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                    const codeId = 'code-' + Math.random().toString(36).substr(2, 9);
+                    const language = lang || 'code';
+                    return `<div class="collapsible-code-block">
+                        <div class="code-block-header" onclick="app.toggleCodeBlock('${codeId}')">
+                            <span class="code-block-label">${language}</span>
+                            <span class="code-block-toggle" id="${codeId}-toggle">▼</span>
+                        </div>
+                        <div class="code-block-content" id="${codeId}">
+                            <pre><code class="language-${lang}">${code}</code></pre>
+                        </div>
+                    </div>`;
+                });
+
                 // Inline code
                 formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
                 
@@ -1551,16 +2249,51 @@
             }
 
             toggleConversation(event) {
+                // Don't toggle if clicking on checkbox
+                if (event.target.classList.contains('conversation-checkbox')) {
+                    return;
+                }
+
                 const header = event.currentTarget;
                 const content = header.nextElementSibling;
                 const toggle = header.querySelector('.expand-toggle');
-                
+
                 if (content.classList.contains('expanded')) {
                     content.classList.remove('expanded');
                     toggle.classList.remove('expanded');
                 } else {
                     content.classList.add('expanded');
                     toggle.classList.add('expanded');
+                }
+            }
+
+            toggleArtifact(artifactId) {
+                const content = document.getElementById(artifactId);
+                const toggle = document.getElementById(artifactId + '-toggle');
+
+                if (content && toggle) {
+                    if (content.classList.contains('expanded')) {
+                        content.classList.remove('expanded');
+                        toggle.classList.remove('expanded');
+                    } else {
+                        content.classList.add('expanded');
+                        toggle.classList.add('expanded');
+                    }
+                }
+            }
+
+            toggleCodeBlock(codeId) {
+                const content = document.getElementById(codeId);
+                const toggle = document.getElementById(codeId + '-toggle');
+
+                if (content && toggle) {
+                    if (content.classList.contains('expanded')) {
+                        content.classList.remove('expanded');
+                        toggle.classList.remove('expanded');
+                    } else {
+                        content.classList.add('expanded');
+                        toggle.classList.add('expanded');
+                    }
                 }
             }
 
@@ -1596,12 +2329,283 @@
             escapeRegex(string) {
                 return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             }
+
+            // Selection Mode Methods
+            toggleSelectionMode() {
+                this.selectionMode = !this.selectionMode;
+                const toggleBtn = document.getElementById('selectionToggle');
+                const bulkActionsBar = document.getElementById('bulkActionsBar');
+                const conversationsList = document.getElementById('conversationsList');
+
+                if (this.selectionMode) {
+                    toggleBtn.classList.add('active');
+                    toggleBtn.setAttribute('data-i18n', 'disable-selection');
+                    setLanguage(document.getElementById('languageSelect').value); // Update text
+                    bulkActionsBar.classList.add('active');
+                    conversationsList.classList.add('selection-mode');
+                } else {
+                    toggleBtn.classList.remove('active');
+                    toggleBtn.setAttribute('data-i18n', 'enable-selection');
+                    setLanguage(document.getElementById('languageSelect').value); // Update text
+                    bulkActionsBar.classList.remove('active');
+                    conversationsList.classList.remove('selection-mode');
+                    this.clearSelection();
+                }
+
+                this.renderConversations();
+            }
+
+            toggleConversationSelection(conversationId) {
+                if (this.selectedConversations.has(conversationId)) {
+                    this.selectedConversations.delete(conversationId);
+                } else {
+                    this.selectedConversations.add(conversationId);
+                }
+                this.updateSelectionUI();
+            }
+
+            selectAll() {
+                // Select all filtered conversations (not just visible)
+                this.filteredConversations.forEach(conv => {
+                    this.selectedConversations.add(conv.id);
+                });
+
+                this.updateSelectionUI();
+            }
+
+            selectAllVisible() {
+                const start = (this.currentPage - 1) * this.conversationsPerPage;
+                const end = start + this.conversationsPerPage;
+                const visibleConversations = this.filteredConversations.slice(start, end);
+
+                visibleConversations.forEach(conv => {
+                    this.selectedConversations.add(conv.id);
+                });
+
+                this.updateSelectionUI();
+            }
+
+            clearSelection() {
+                this.selectedConversations.clear();
+                this.updateSelectionUI();
+            }
+
+            updateSelectionUI() {
+                const count = this.selectedConversations.size;
+                document.getElementById('selectionCount').textContent = `${count} selected`;
+
+                // Update checkboxes
+                const allCheckboxes = document.querySelectorAll('.conversation-checkbox');
+                allCheckboxes.forEach(checkbox => {
+                    const convId = checkbox.id.replace('checkbox-', '');
+                    checkbox.checked = this.selectedConversations.has(convId);
+                });
+
+                // Enable/disable export button
+                document.getElementById('exportSelected').disabled = count === 0;
+            }
+
+            // Export Methods
+            exportSelected() {
+                if (this.selectedConversations.size === 0) {
+                    alert('No conversations selected');
+                    return;
+                }
+
+                const selectedConvs = this.conversations.filter(conv =>
+                    this.selectedConversations.has(conv.id)
+                );
+
+                const dateStr = this.getDateString();
+                const filename = dateStr
+                    ? `claude-conversations-selected-${dateStr}.json`
+                    : 'claude-conversations-selected.json';
+
+                this.downloadJSON(selectedConvs, filename);
+            }
+
+            exportFiltered() {
+                if (this.filteredConversations.length === 0) {
+                    alert('No conversations to export');
+                    return;
+                }
+
+                const dateStr = this.getDateString();
+                const filename = dateStr
+                    ? `claude-conversations-filtered-${dateStr}.json`
+                    : 'claude-conversations-filtered.json';
+
+                this.downloadJSON(this.filteredConversations, filename);
+            }
+
+            exportSingleConversation(conversationId) {
+                const conversation = this.conversations.find(conv => conv.id === conversationId);
+
+                if (!conversation) {
+                    alert('Conversation not found');
+                    return;
+                }
+
+                // Create a sanitized filename from conversation title using settings
+                const sanitizedTitle = conversation.name
+                    .replace(/[^a-z0-9]/gi, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-|-$/g, '')
+                    .toLowerCase()
+                    .substring(0, this.settings.titleLength);
+
+                const dateStr = this.getDateString();
+                const filename = dateStr
+                    ? `claude-conversation-${sanitizedTitle}-${dateStr}.json`
+                    : `claude-conversation-${sanitizedTitle}.json`;
+
+                this.downloadJSON([conversation], filename);
+            }
+
+            downloadJSON(conversations, filename) {
+                // Show progress indicator
+                this.showProgress('Exporting...', `Preparing ${conversations.length} conversation${conversations.length === 1 ? '' : 's'}`);
+
+                // Use setTimeout to allow UI to update
+                setTimeout(() => {
+                    try {
+                        // Create properly formatted JSON matching Anthropic's export structure
+                        const exportData = conversations.map(conv => ({
+                            uuid: conv.id || conv.uuid,
+                            name: conv.name,
+                            created_at: conv.created_at,
+                            updated_at: conv.updated_at,
+                            chat_messages: conv.messages.map(msg => ({
+                                uuid: msg.uuid || this.generateId(),
+                                sender: msg.role,
+                                text: msg.content,
+                                created_at: msg.timestamp || new Date().toISOString()
+                            }))
+                        }));
+
+                        // Format with proper indentation using settings
+                        const jsonString = JSON.stringify(exportData, null, this.settings.jsonIndent);
+
+                        // Create blob and download
+                        const blob = new Blob([jsonString], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+
+                        // Hide progress after a short delay
+                        setTimeout(() => this.hideProgress(), 500);
+                    } catch (error) {
+                        this.hideProgress();
+                        alert('Error exporting conversations: ' + error.message);
+                    }
+                }, 100);
+            }
+
+            getDateString() {
+                const now = new Date();
+                const format = this.settings.dateFormat;
+
+                if (format === 'none') {
+                    return '';
+                }
+
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+
+                let dateStr = '';
+                switch(format) {
+                    case 'DD-MM-YYYY':
+                        dateStr = `${day}-${month}-${year}`;
+                        break;
+                    case 'MM-DD-YYYY':
+                        dateStr = `${month}-${day}-${year}`;
+                        break;
+                    default: // YYYY-MM-DD
+                        dateStr = `${year}-${month}-${day}`;
+                }
+
+                if (this.settings.includeTimestamp) {
+                    dateStr += `-${hours}-${minutes}`;
+                }
+
+                return dateStr;
+            }
+
+            // Settings Methods
+            loadSettings() {
+                const defaultSettings = {
+                    dateFormat: 'YYYY-MM-DD',
+                    titleLength: 50,
+                    jsonIndent: 2,
+                    includeTimestamp: false
+                };
+
+                const saved = localStorage.getItem('claude-export-settings');
+                this.settings = saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+            }
+
+            openSettings() {
+                // Load current settings into form
+                document.getElementById('dateFormat').value = this.settings.dateFormat;
+                document.getElementById('titleLength').value = this.settings.titleLength;
+                document.getElementById('jsonIndent').value = this.settings.jsonIndent;
+                document.getElementById('includeTimestamp').checked = this.settings.includeTimestamp;
+
+                document.getElementById('settingsModal').classList.add('active');
+            }
+
+            closeSettings() {
+                document.getElementById('settingsModal').classList.remove('active');
+            }
+
+            saveSettings() {
+                // Get values from form
+                this.settings = {
+                    dateFormat: document.getElementById('dateFormat').value,
+                    titleLength: parseInt(document.getElementById('titleLength').value),
+                    jsonIndent: parseInt(document.getElementById('jsonIndent').value),
+                    includeTimestamp: document.getElementById('includeTimestamp').checked
+                };
+
+                // Save to localStorage
+                localStorage.setItem('claude-export-settings', JSON.stringify(this.settings));
+
+                this.closeSettings();
+            }
+
+            resetSettings() {
+                // Reset to defaults
+                document.getElementById('dateFormat').value = 'YYYY-MM-DD';
+                document.getElementById('titleLength').value = 50;
+                document.getElementById('jsonIndent').value = 2;
+                document.getElementById('includeTimestamp').checked = false;
+            }
+
+            // Progress indicator methods
+            showProgress(text, subtext = '') {
+                document.getElementById('progressText').textContent = text;
+                document.getElementById('progressSubtext').textContent = subtext;
+                document.getElementById('progressOverlay').classList.add('active');
+            }
+
+            hideProgress() {
+                document.getElementById('progressOverlay').classList.remove('active');
+            }
         }
 
         // Initialize the application
+        let app; // Global app instance for onclick handlers
         document.addEventListener('DOMContentLoaded', () => {
             detectAndSetLanguage();
-            new ClaudeExportRenderer();
+            app = new ClaudeExportRenderer();
         });
     </script>
 </body>

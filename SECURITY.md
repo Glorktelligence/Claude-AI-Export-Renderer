@@ -7,7 +7,7 @@ The Claude AI Export Renderer is currently a single-file application. Security u
 | Version | Supported |
 | ------- | --------- |
 | Latest  | ✅        |
-| < 1.0.1 | ❌        |
+| < 1.0.2 | ❌        |
 
 ## Security Considerations
 

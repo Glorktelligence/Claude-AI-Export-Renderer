@@ -1,11 +1,11 @@
 
 # Claude AI Export Renderer
 
-A web-based tool for viewing and exploring Claude conversation exports with search, filtering, pagination, and artifact rendering.
+A web-based tool for viewing and exploring Claude conversation exports with search, filtering, pagination, artifact rendering, and comprehensive export functionality.
 
 ## Recent Updates
 
-**Version 1.0.1** - Added complete multilingual support with automatic language detection for English, German, Spanish, and French. See [CHANGELOG.md](https://github.com/Glorktelligence/Claude-AI-Export-Renderer/blob/main/CHANGELOG.md) for full version history.
+**Version 1.0.2** - Major update adding comprehensive export functionality with customizable settings, selection tools, and collapsible code sections. Export filtered conversations, selected conversations, or individual conversations with full control over file naming and formatting. See [CHANGELOG.md](https://github.com/Glorktelligence/Claude-AI-Export-Renderer/blob/main/CHANGELOG.md) for full version history.
 
 ## Legal Disclaimer
 
@@ -19,6 +19,10 @@ If you are a representative of Anthropic PBC and have concerns about this projec
 
 * **Clean Interface** : Dark theme with intuitive navigation
 * **Search & Filter** : Find specific conversations and messages instantly
+* **Comprehensive Export System** : Export filtered, selected, or individual conversations with customizable settings
+* **Selection Tools** : Bulk selection with checkboxes and selection helpers
+* **Export Settings** : Customize file naming, date formats, JSON indentation, and more
+* **Collapsible Code Sections** : Artifacts and code blocks collapse by default for cleaner viewing
 * **Artifact Rendering** : Properly displays code, markdown, and generated content
 * **Pagination** : Handles large exports efficiently (tested with 32MB+ files)
 * **Performance Optimized** : Won't crash your browser with large conversation histories
@@ -42,6 +46,8 @@ The language selector in the top-right corner allows instant switching between l
 2. Open it in any modern web browser
 3. Click "Choose Claude Export File" and select your `conversations.json`
 4. Explore your conversations with search, filters, and pagination
+5. Use the export features to save filtered or selected conversations
+6. Customize export settings via the ⚙️ settings icon
 
 ## How to Get Your Claude Export
 
@@ -79,6 +85,39 @@ The language selector in the top-right corner allows instant switching between l
 * Displays markdown content with formatting
 * Shows HTML and JavaScript artifacts in code blocks
 * Tool use displays with clear indicators
+* **NEW**: Artifacts and code blocks are collapsible (collapsed by default)
+* Click headers to expand/collapse content for cleaner reading
+
+### Export Functionality
+
+The tool offers three ways to export conversations:
+
+* **Export Filtered Conversations**: Export all conversations matching your current search/filter criteria
+* **Export Selected Conversations**: Use selection mode to pick specific conversations, then export them
+* **Export Individual Conversation**: Hover over any conversation header and click the 💾 icon to export just that one
+
+All exports maintain compatibility with Anthropic's JSON format and can be re-imported into the tool.
+
+### Selection Mode
+
+* Click "Enable Selection Mode" to show checkboxes on conversation headers
+* Select individual conversations by clicking checkboxes
+* Use "Select All" to select all filtered conversations (across all pages)
+* Use "Select All Visible" to select only conversations on the current page
+* Use "Clear Selection" to deselect all
+* Selection count displayed in the bulk actions bar
+* Export your selection with the "Export Selected" button
+
+### Export Settings
+
+Click the ⚙️ settings icon (next to language selector) to customize exports:
+
+* **Date Format**: Choose YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY, or no date
+* **Include Timestamp**: Optionally add time to filename (e.g., 2024-10-26-14-30)
+* **Max Title Length**: Control how many characters from the conversation title appear in filename (20-100)
+* **JSON Indentation**: Choose 2 or 4 spaces for formatting
+* Settings are automatically saved and persist across sessions
+* Reset to defaults option available
 
 ### Performance Features
 
@@ -105,11 +144,15 @@ The tool handles exports of various sizes:
 
 ## Technical Details
 
-* Pure HTML/CSS/JavaScript - no frameworks required
+* Pure HTML/CSS/JavaScript - no frameworks required (~2,500 lines)
 * Handles complex Claude export formats including tool use and artifacts
 * Filters out corrupted "[object Object]" entries automatically
 * Memory-efficient pagination for large datasets
 * Responsive design with mobile support
+* Export format maintains full compatibility with Anthropic's JSON structure
+* Settings persistence via browser localStorage
+* Progress indicators for export operations
+* File naming sanitization for cross-platform compatibility
 
 ## Known Limitations
 
@@ -121,11 +164,12 @@ The tool handles exports of various sizes:
 
 Issues and pull requests welcome! Areas for potential improvement:
 
-* Additional export format support
+* Additional language support based on community requests
 * Enhanced search capabilities (regex, advanced filters)
-* Export functionality (filtered conversations to new file)
-* Conversation statistics and analytics
+* Additional export formats (CSV, Markdown, etc.)
+* Conversation statistics and analytics dashboard
 * Dark/light theme toggle
+* Batch conversation management features
 
 ## Development
 
@@ -141,7 +185,24 @@ MIT License - see LICENSE file for details.
 
 ## Changelog
 
-### v1.0.0
+For detailed version history, see [CHANGELOG.md](https://github.com/Glorktelligence/Claude-AI-Export-Renderer/blob/main/CHANGELOG.md).
+
+### v1.0.2 (2025-10-26)
+
+* Complete export system with 3 export options
+* Selection mode with bulk selection tools
+* Export settings modal with customizable preferences
+* Export progress indicators
+* Collapsible artifacts and code blocks
+* Smart file naming with multiple date format options
+
+### v1.0.1 (2025-10-23)
+
+* Multilingual support (EN, DE, ES, FR)
+* Automatic language detection
+* Language preference persistence
+
+### v1.0.0 (2025-10-23)
 
 * Initial release
 * Basic conversation viewing with search and filters
