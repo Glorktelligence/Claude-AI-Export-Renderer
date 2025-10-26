@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.2] - 2025-10-26
 
 ### Added
+
 - **Complete Export System**: Comprehensive conversation export functionality with multiple options
   - Export filtered conversations with proper JSON formatting
   - Export selected conversations with bulk selection tools
@@ -39,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Smooth expand/collapse animations
 
 ### Improved
+
 - **File Naming Conventions**: Smart, customizable filename generation
   - Sanitized conversation titles in filenames
   - Configurable date formats
@@ -51,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Clear visual feedback for all actions
 
 ### Technical Details
+
 - Single-file architecture maintained (~2,500 lines)
 - Export format maintains compatibility with Anthropic's JSON structure
 - All processing remains client-side (no external dependencies)
@@ -63,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.1] - 2025-10-23
 
 ### Added
+
 - **Multilingual Support System**: Complete internationalization support with automatic browser language detection
 - **Language Selector**: Dropdown in header for manual language switching
 - **Language Persistence**: Remembers user's language preference in browser localStorage
@@ -75,6 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Complete Translation Coverage**: All interface elements, buttons, labels, placeholders, and footer content
 
 ### Technical Details
+
 - Single-file architecture maintained - no additional files required
 - Translations embedded as JavaScript objects (~15KB overhead)
 - Instant language switching without page reload
@@ -83,16 +88,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-10-23
 
 ### Added
+
 - **Initial Release**: Core Claude conversation export viewing functionality
 - **File Support**: Handles large JSON export files (tested with 32MB+ files)
 - **Search System**: Full-text search across conversation titles and message content
-- **Advanced Filtering**: 
+- **Advanced Filtering**:
   - Sort by date, title, or message count
   - Filter by date ranges (today, week, month, quarter, year)
   - Show only conversations with Claude responses
   - Filter for long conversations (10+ messages)
 - **Artifact Rendering**: Proper display of code blocks, markdown, and generated content
-- **Pagination System**: 
+- **Pagination System**:
   - Adaptive page sizes (10-50 conversations per page)
   - Dual pagination controls (top and bottom)
   - Large file detection and optimization
@@ -114,11 +120,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Offline capable
 
 ### Security
+
 - Added comprehensive security policy (SECURITY.md)
 - Professional contact channels for vulnerability reporting
 - Privacy-first architecture with local-only data processing
 
 ### Documentation
+
 - Complete README.md with installation and usage instructions
 - Legal disclaimers respecting Anthropic's intellectual property
 - MIT License with trademark acknowledgments
@@ -127,6 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Future Considerations
 
 ### Potential Features
+
 - Additional language support based on user feedback
 - Export functionality for filtered conversations
 - Conversation analytics and statistics
@@ -137,3 +146,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 **Note**: This project respects Anthropic's intellectual property and is not affiliated with Anthropic PBC. See README.md for full legal disclaimers.
+
+**Note**: Testing new monitoring function for discord community on this file!
