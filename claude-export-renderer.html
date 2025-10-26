@@ -2002,7 +2002,10 @@
                     const input = parsed.input;
                     let result = `[Artifact: ${input.title || input.id || 'Untitled'}]`;
                     if (input.content) {
-                        result += ' ' + input.content;
+                        const contentStr = typeof input.content === 'object'
+                            ? JSON.stringify(input.content)
+                            : input.content;
+                        result += ' ' + contentStr;
                     }
                     return result;
                 }
@@ -2012,7 +2015,12 @@
                     let result = `[Tool: ${parsed.name}]`;
                     if (parsed.input && typeof parsed.input === 'object') {
                         if (parsed.input.query) result += ` Query: ${parsed.input.query}`;
-                        if (parsed.input.content) result += ' ' + parsed.input.content;
+                        if (parsed.input.content) {
+                            const contentStr = typeof parsed.input.content === 'object'
+                                ? JSON.stringify(parsed.input.content)
+                                : parsed.input.content;
+                            result += ' ' + contentStr;
+                        }
                         if (parsed.input.url) result += ` URL: ${parsed.input.url}`;
                     }
                     return result;
@@ -2028,12 +2036,30 @@
                 }
                 
                 // Handle other message types
-                if (parsed.type === 'tool_result' && parsed.content) return `[Tool Result: ${parsed.content}]`;
+                if (parsed.type === 'tool_result' && parsed.content) {
+                    // Recursively extract content from tool results
+                    const content = typeof parsed.content === 'object'
+                        ? this.extractFromParsedContent(parsed.content)
+                        : parsed.content;
+                    return content ? `[Tool Result: ${content}]` : '';
+                }
                 
                 // Handle direct properties
-                if (parsed.text && String(parsed.text).trim()) return parsed.text;
-                if (parsed.content && String(parsed.content).trim()) return parsed.content;
-                
+                if (parsed.text) {
+                    if (typeof parsed.text === 'string' && parsed.text.trim()) {
+                        return parsed.text;
+                    } else if (typeof parsed.text === 'object') {
+                        return this.extractFromParsedContent(parsed.text);
+                    }
+                }
+                if (parsed.content) {
+                    if (typeof parsed.content === 'string' && parsed.content.trim()) {
+                        return parsed.content;
+                    } else if (typeof parsed.content === 'object') {
+                        return this.extractFromParsedContent(parsed.content);
+                    }
+                }
+
                 // Skip objects that don't contain meaningful text content
                 return '';
             }
@@ -2136,8 +2162,11 @@
                 // Handle tool use with artifacts
                 if (parsed.type === 'tool_use' && parsed.name === 'artifacts' && parsed.input) {
                     const input = parsed.input;
+                    const content = input.content
+                        ? (typeof input.content === 'object' ? JSON.stringify(input.content, null, 2) : input.content)
+                        : '[No content]';
                     return {
-                        content: input.content || '[No content]',
+                        content: content,
                         isArtifact: true,
                         artifactType: input.type || 'unknown',
                         artifactTitle: input.title || input.id || 'Untitled Artifact'
@@ -2150,14 +2179,24 @@
                     if (parsed.input && typeof parsed.input === 'object') {
                         if (parsed.input.query) content += `Query: ${parsed.input.query}\n`;
                         if (parsed.input.url) content += `URL: ${parsed.input.url}\n`;
-                        if (parsed.input.content) content += parsed.input.content;
-                        else {
+                        if (parsed.input.content) {
+                            const contentStr = typeof parsed.input.content === 'object'
+                                ? JSON.stringify(parsed.input.content, null, 2)
+                                : parsed.input.content;
+                            content += contentStr;
+                        } else {
                             // Show relevant input parameters
-                            const relevantKeys = Object.keys(parsed.input).filter(key => 
+                            const relevantKeys = Object.keys(parsed.input).filter(key =>
                                 key !== 'start_timestamp' && key !== 'stop_timestamp' && key !== 'flags'
                             );
                             if (relevantKeys.length > 0) {
-                                content += relevantKeys.map(key => `${key}: ${parsed.input[key]}`).join('\n');
+                                content += relevantKeys.map(key => {
+                                    const value = parsed.input[key];
+                                    const displayValue = typeof value === 'object'
+                                        ? JSON.stringify(value, null, 2)
+                                        : value;
+                                    return `${key}: ${displayValue}`;
+                                }).join('\n');
                             }
                         }
                     }
@@ -2173,7 +2212,18 @@
                         return { content: '', isArtifact: false, artifactType: '', artifactTitle: '' };
                     }
                 }
-                
+
+                // Handle tool results
+                if (parsed.type === 'tool_result' && parsed.content) {
+                    let content = '';
+                    if (typeof parsed.content === 'string') {
+                        content = parsed.content;
+                    } else if (typeof parsed.content === 'object') {
+                        content = this.formatParsedContent(parsed.content).content;
+                    }
+                    return { content: content ? `📋 Tool Result:\n${content}` : '', isArtifact: false, artifactType: '', artifactTitle: '' };
+                }
+
                 // Handle arrays
                 if (Array.isArray(parsed)) {
                     const contents = parsed.map(item => this.formatParsedContent(item).content).filter(c => c.trim());
@@ -2181,11 +2231,21 @@
                 }
                 
                 // Handle direct properties
-                if (parsed.text && String(parsed.text).trim()) {
-                    return { content: parsed.text, isArtifact: false, artifactType: '', artifactTitle: '' };
+                if (parsed.text) {
+                    if (typeof parsed.text === 'string' && parsed.text.trim()) {
+                        return { content: parsed.text, isArtifact: false, artifactType: '', artifactTitle: '' };
+                    } else if (typeof parsed.text === 'object') {
+                        const extractedContent = this.formatParsedContent(parsed.text).content;
+                        return { content: extractedContent, isArtifact: false, artifactType: '', artifactTitle: '' };
+                    }
                 }
-                if (parsed.content && String(parsed.content).trim()) {
-                    return { content: parsed.content, isArtifact: false, artifactType: '', artifactTitle: '' };
+                if (parsed.content) {
+                    if (typeof parsed.content === 'string' && parsed.content.trim()) {
+                        return { content: parsed.content, isArtifact: false, artifactType: '', artifactTitle: '' };
+                    } else if (typeof parsed.content === 'object') {
+                        const extractedContent = this.formatParsedContent(parsed.content).content;
+                        return { content: extractedContent, isArtifact: false, artifactType: '', artifactTitle: '' };
+                    }
                 }
                 
                 // Handle objects we don't recognize - don't show [object Object]
@@ -2478,7 +2538,7 @@
                             chat_messages: conv.messages.map(msg => ({
                                 uuid: msg.uuid || this.generateId(),
                                 sender: msg.role,
-                                text: msg.content,
+                                text: this.extractTextContent(msg.content),
                                 created_at: msg.timestamp || new Date().toISOString()
                             }))
                         }));
