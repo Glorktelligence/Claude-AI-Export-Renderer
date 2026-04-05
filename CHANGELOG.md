@@ -5,6 +5,33 @@ All notable changes to the Claude AI Export Renderer will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-04-05
+
+### Added
+
+- **Smart Loading with IndexedDB**: Files over 10MB are now streamed and stored in IndexedDB instead of loaded entirely into memory
+  - `StreamingJSONArrayParser`: Reads files in 1MB chunks, tracks JSON nesting depth, parses each conversation object individually — never loads the whole file at once
+  - `ConversationDB`: Full IndexedDB wrapper with conversations/messages/metadata stores, cursor-based pagination, full-text search, and stats queries
+  - Handles all three Claude export formats (direct array, `{conversations:[...]}`, `{data:[...]}`) via streaming
+- **Lazy Message Loading**: In IndexedDB mode, messages load only when a conversation is expanded — keeps memory under 5MB regardless of export size
+- **Progress Bar UI**: Proper progress bar during large file import showing percentage, conversation count, file size processed, and elapsed time
+- **Dual-Mode Architecture**: Files under 10MB use the existing fast in-memory path (unchanged); files over 10MB use the IndexedDB streaming path
+
+### Improved
+
+- **Conversation Normalization**: Extracted `normaliseConversation()` method shared by both in-memory and IndexedDB import paths
+- **Search in IndexedDB Mode**: Full-text search across conversation names and message content via IDB cursor scan with search progress indicator
+- **Filters in IndexedDB Mode**: Date range, has-assistant, long conversations, and recent filters all work from lightweight conversation headers stored in memory (~2MB for 10K conversations)
+- **Exports in IndexedDB Mode**: All export functions (filtered, selected, individual) reconstruct full conversations from IndexedDB on demand
+
+### Technical Details
+
+- Single-file architecture maintained (~4,200 lines)
+- IndexedDB schema: 3 stores (conversations, messages, metadata) with indexes for sorting
+- Conversation headers loaded into memory for fast filtering; messages lazy-loaded from IDB
+- Streaming parser handles escaped strings, nested objects, and multi-chunk boundaries correctly
+- No external dependencies added
+
 ## [2.0.0] - 2026-04-05
 
 ### Added

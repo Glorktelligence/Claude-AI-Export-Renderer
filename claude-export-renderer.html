@@ -1304,6 +1304,30 @@
             background: #e6ffec;
             color: #22863a;
         }
+
+        /* Progress bar (v2.1) */
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent-primary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-detail {
+            color: var(--text-tertiary);
+            font-size: 13px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -1426,7 +1450,11 @@
             <div class="progress-container">
                 <div class="progress-spinner"></div>
                 <div class="progress-text" id="progressText" data-i18n="exporting">Exporting...</div>
+                <div class="progress-bar-container" id="progressBarContainer" style="display: none;">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
                 <div class="progress-subtext" id="progressSubtext"></div>
+                <div class="progress-detail" id="progressDetail"></div>
             </div>
         </div>
 
@@ -1948,12 +1976,283 @@
             }
         }
 
+        // Streaming JSON Array Parser (v2.1)
+        // Reads file in 1MB chunks, finds conversation object boundaries,
+        // parses each individually — never loads the whole file into memory.
+        class StreamingJSONArrayParser {
+            constructor() {
+                this.CHUNK_SIZE = 1024 * 1024; // 1MB
+            }
+
+            async parse(file, onConversation, onProgress) {
+                let offset = 0;
+                let depth = 0;
+                let inString = false;
+                let escapeNext = false;
+                let foundArrayStart = false;
+                let objectBuffer = '';
+                let conversationsFound = 0;
+
+                while (offset < file.size) {
+                    const end = Math.min(offset + this.CHUNK_SIZE, file.size);
+                    const chunk = await this.readChunk(file, offset, end);
+
+                    let chunkObjStart = (depth > 0) ? 0 : -1;
+
+                    for (let i = 0; i < chunk.length; i++) {
+                        const ch = chunk[i];
+
+                        if (escapeNext) { escapeNext = false; continue; }
+
+                        if (inString) {
+                            if (ch === '\\') escapeNext = true;
+                            else if (ch === '"') inString = false;
+                            continue;
+                        }
+
+                        if (ch === '"') { inString = true; continue; }
+
+                        if (!foundArrayStart) {
+                            if (ch === '[') foundArrayStart = true;
+                            continue;
+                        }
+
+                        if (ch === '{') {
+                            if (depth === 0) chunkObjStart = i;
+                            depth++;
+                        } else if (ch === '}') {
+                            depth--;
+                            if (depth === 0 && chunkObjStart !== -1) {
+                                const objectStr = objectBuffer + chunk.substring(chunkObjStart, i + 1);
+                                objectBuffer = '';
+                                chunkObjStart = -1;
+
+                                try {
+                                    const obj = JSON.parse(objectStr);
+                                    conversationsFound++;
+                                    await onConversation(obj);
+                                } catch (e) {
+                                    console.warn('Skipping malformed conversation:', e.message);
+                                }
+                            }
+                        }
+                    }
+
+                    if (depth > 0 && chunkObjStart !== -1) {
+                        objectBuffer += chunk.substring(chunkObjStart);
+                    }
+
+                    offset = end;
+                    if (onProgress) onProgress(offset, file.size, conversationsFound);
+                }
+
+                return conversationsFound;
+            }
+
+            readChunk(file, start, end) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = () => reject(new Error('Failed to read chunk'));
+                    reader.readAsText(file.slice(start, end));
+                });
+            }
+        }
+
+        // IndexedDB Storage Layer (v2.1)
+        class ConversationDB {
+            static DB_NAME = 'claude-export-renderer';
+            static DB_VERSION = 1;
+
+            constructor() { this.db = null; }
+
+            async open() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(ConversationDB.DB_NAME, ConversationDB.DB_VERSION);
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('conversations')) {
+                            const cs = db.createObjectStore('conversations', { keyPath: 'id' });
+                            cs.createIndex('created_at', 'created_at', { unique: false });
+                            cs.createIndex('updated_at', 'updated_at', { unique: false });
+                            cs.createIndex('name', 'name', { unique: false });
+                            cs.createIndex('messageCount', 'messageCount', { unique: false });
+                        }
+                        if (!db.objectStoreNames.contains('messages')) {
+                            const ms = db.createObjectStore('messages', { keyPath: 'id' });
+                            ms.createIndex('conversationId', 'conversationId', { unique: false });
+                            ms.createIndex('timestamp', 'timestamp', { unique: false });
+                        }
+                        if (!db.objectStoreNames.contains('metadata')) {
+                            db.createObjectStore('metadata', { keyPath: 'key' });
+                        }
+                    };
+
+                    request.onsuccess = (event) => { this.db = event.target.result; resolve(); };
+                    request.onerror = (event) => reject(new Error('Failed to open IndexedDB: ' + event.target.error));
+                });
+            }
+
+            async clear() {
+                const tx = this.db.transaction(['conversations', 'messages', 'metadata'], 'readwrite');
+                const p = (store) => new Promise((res, rej) => {
+                    const r = store.clear(); r.onsuccess = () => res(); r.onerror = (e) => rej(e.target.error);
+                });
+                await Promise.all([
+                    p(tx.objectStore('conversations')),
+                    p(tx.objectStore('messages')),
+                    p(tx.objectStore('metadata'))
+                ]);
+            }
+
+            async close() { if (this.db) { this.db.close(); this.db = null; } }
+
+            async storeConversation(conv) {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction('conversations', 'readwrite');
+                    const r = tx.objectStore('conversations').put(conv);
+                    r.onsuccess = () => resolve(); r.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async storeMessages(conversationId, messages) {
+                const tx = this.db.transaction('messages', 'readwrite');
+                const store = tx.objectStore('messages');
+                const promises = messages.map((msg, index) => new Promise((resolve, reject) => {
+                    const r = store.put({
+                        id: conversationId + '-' + index,
+                        conversationId,
+                        role: msg.role,
+                        content: msg.content,
+                        timestamp: msg.timestamp,
+                        index
+                    });
+                    r.onsuccess = () => resolve(); r.onerror = (e) => reject(e.target.error);
+                }));
+                await Promise.all(promises);
+            }
+
+            async getConversationCount() {
+                return new Promise((resolve, reject) => {
+                    const r = this.db.transaction('conversations', 'readonly').objectStore('conversations').count();
+                    r.onsuccess = () => resolve(r.result); r.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async getAllConversations() {
+                return new Promise((resolve, reject) => {
+                    const r = this.db.transaction('conversations', 'readonly').objectStore('conversations').getAll();
+                    r.onsuccess = () => resolve(r.result); r.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async getConversation(id) {
+                return new Promise((resolve, reject) => {
+                    const r = this.db.transaction('conversations', 'readonly').objectStore('conversations').get(id);
+                    r.onsuccess = () => resolve(r.result); r.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async getMessages(conversationId) {
+                return new Promise((resolve, reject) => {
+                    const r = this.db.transaction('messages', 'readonly')
+                        .objectStore('messages').index('conversationId').getAll(conversationId);
+                    r.onsuccess = () => resolve(r.result.sort((a, b) => a.index - b.index));
+                    r.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async searchConversations(query) {
+                return new Promise((resolve, reject) => {
+                    const matchingIds = new Set();
+                    const lowerQuery = query.toLowerCase();
+                    const tx = this.db.transaction(['conversations', 'messages'], 'readonly');
+
+                    // Search conversation names first
+                    const convCursor = tx.objectStore('conversations').openCursor();
+                    convCursor.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            const c = cursor.value;
+                            if ((c.name && c.name.toLowerCase().includes(lowerQuery)) ||
+                                (c.firstHumanMessage && c.firstHumanMessage.toLowerCase().includes(lowerQuery))) {
+                                matchingIds.add(c.id);
+                            }
+                            cursor.continue();
+                        } else {
+                            // Then search message content
+                            const msgCursor = tx.objectStore('messages').openCursor();
+                            msgCursor.onsuccess = (event) => {
+                                const cursor = event.target.result;
+                                if (cursor) {
+                                    const m = cursor.value;
+                                    if (!matchingIds.has(m.conversationId)) {
+                                        const text = typeof m.content === 'string'
+                                            ? m.content : JSON.stringify(m.content);
+                                        if (text && text.toLowerCase().includes(lowerQuery)) {
+                                            matchingIds.add(m.conversationId);
+                                        }
+                                    }
+                                    cursor.continue();
+                                } else {
+                                    resolve(matchingIds);
+                                }
+                            };
+                            msgCursor.onerror = (e) => reject(e.target.error);
+                        }
+                    };
+                    convCursor.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async getStats() {
+                return new Promise((resolve, reject) => {
+                    const r = this.db.transaction('conversations', 'readonly').objectStore('conversations').getAll();
+                    r.onsuccess = () => {
+                        const convs = r.result;
+                        const total = convs.length;
+                        const totalMsgs = convs.reduce((s, c) => s + (c.messageCount || 0), 0);
+                        const dates = convs.map(c => new Date(c.created_at)).filter(d => !isNaN(d)).sort((a, b) => a - b);
+                        resolve({
+                            totalConversations: total,
+                            totalMessages: totalMsgs,
+                            dateRange: dates.length > 0 ? { earliest: dates[0], latest: dates[dates.length - 1] } : null,
+                            avgMessages: total > 0 ? Math.round(totalMsgs / total) : 0
+                        });
+                    };
+                    r.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async setMetadata(key, value) {
+                return new Promise((resolve, reject) => {
+                    const r = this.db.transaction('metadata', 'readwrite').objectStore('metadata').put({ key, value });
+                    r.onsuccess = () => resolve(); r.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async getMetadata(key) {
+                return new Promise((resolve, reject) => {
+                    const r = this.db.transaction('metadata', 'readonly').objectStore('metadata').get(key);
+                    r.onsuccess = () => resolve(r.result ? r.result.value : null);
+                    r.onerror = (e) => reject(e.target.error);
+                });
+            }
+        }
+
         class ClaudeExportRenderer {
             constructor() {
                 this.conversations = [];
                 this.filteredConversations = [];
                 this.currentPage = 1;
                 this.conversationsPerPage = 20; // Default page size
+                // IndexedDB state (v2.1)
+                this.useIndexedDB = false;
+                this.db = null;
+                this.totalConversationCount = 0;
+                this.idbHeaders = [];
+                this.idbSearchResults = null;
                 // Selection mode state
                 this.selectionMode = false;
                 this.selectedConversations = new Set();
@@ -2057,19 +2356,89 @@
                 if (!file) return;
 
                 document.getElementById('fileName').textContent = `Selected: ${file.name} (${this.formatFileSize(file.size)})`;
-                document.getElementById('loading').style.display = 'block';
                 document.getElementById('error').style.display = 'none';
 
+                const USE_IDB_THRESHOLD = 10 * 1024 * 1024; // 10MB
+
                 try {
-                    const text = await this.readFile(file);
-                    const data = JSON.parse(text);
-                    this.processConversations(data);
-                    this.showInterface();
+                    if (file.size > USE_IDB_THRESHOLD) {
+                        await this.handleLargeFile(file);
+                    } else {
+                        await this.handleSmallFile(file);
+                    }
                 } catch (error) {
+                    this.hideProgress();
                     this.showError(`Error processing file: ${error.message}`);
                 } finally {
                     document.getElementById('loading').style.display = 'none';
                 }
+            }
+
+            async handleSmallFile(file) {
+                this.useIndexedDB = false;
+                this.db = null;
+                document.getElementById('loading').style.display = 'block';
+
+                const text = await this.readFile(file);
+                const data = JSON.parse(text);
+                this.processConversations(data);
+                this.showInterface();
+            }
+
+            async handleLargeFile(file) {
+                this.useIndexedDB = true;
+                this.conversations = [];
+                this.filteredConversations = [];
+                this.idbSearchResults = null;
+
+                this.showProgress('Loading...', `File: ${file.name} (${this.formatFileSize(file.size)})`);
+
+                this.db = new ConversationDB();
+                await this.db.open();
+                await this.db.clear();
+
+                const startTime = Date.now();
+                let messageCount = 0;
+                let count = 0;
+
+                const parser = new StreamingJSONArrayParser();
+
+                await parser.parse(file, async (rawConv) => {
+                    const conv = this.normaliseConversation(rawConv);
+                    if (!conv) return;
+
+                    const msgCount = conv.messages.length;
+                    messageCount += msgCount;
+
+                    await this.db.storeConversation({
+                        id: conv.id,
+                        name: conv.name,
+                        created_at: conv.created_at,
+                        updated_at: conv.updated_at,
+                        messageCount: msgCount,
+                        wordCount: this.estimateWordCount(conv),
+                        firstHumanMessage: this.getFirstHumanMessage(conv),
+                        hasAssistant: conv.messages.some(msg => msg.role === 'assistant')
+                    });
+
+                    await this.db.storeMessages(conv.id, conv.messages);
+                    count++;
+                }, (bytesProcessed, totalBytes, convCount) => {
+                    this.updateProgress(bytesProcessed, totalBytes, convCount, messageCount, startTime);
+                });
+
+                this.totalConversationCount = count;
+
+                await this.db.setMetadata('importDate', new Date().toISOString());
+                await this.db.setMetadata('fileSize', file.size);
+                await this.db.setMetadata('totalConversations', count);
+
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                this.showProgress('Complete!', `Loaded ${count.toLocaleString()} conversations in ${elapsed}s`);
+                await new Promise(r => setTimeout(r, 1000));
+
+                this.hideProgress();
+                await this.showInterface();
             }
 
             readFile(file) {
@@ -2081,10 +2450,51 @@
                 });
             }
 
+            normaliseConversation(rawConv) {
+                const messages = rawConv.messages || rawConv.chat_messages || [];
+                const createdAt = rawConv.created_at || rawConv.created || rawConv.timestamp;
+                const updatedAt = rawConv.updated_at || rawConv.updated || rawConv.last_modified || createdAt;
+
+                let title = rawConv.name || rawConv.title || 'Untitled Conversation';
+                if (title === 'Untitled Conversation' && messages.length > 0) {
+                    const firstHuman = messages.find(msg => msg.role === 'human' || msg.role === 'user');
+                    if (firstHuman) {
+                        const content = this.extractTextContent(firstHuman.content);
+                        if (content && content.length > 0) {
+                            title = content.substring(0, 50).trim();
+                            if (content.length > 50) title += '...';
+                            title = title.replace(/\n/g, ' ').replace(/\s+/g, ' ');
+                        }
+                    }
+                }
+
+                const normalised = {
+                    ...rawConv,
+                    id: rawConv.id || rawConv.uuid || this.generateId(),
+                    name: title,
+                    created_at: createdAt,
+                    updated_at: updatedAt,
+                    messages: messages.map(msg => ({
+                        ...msg,
+                        role: msg.role || msg.sender || 'unknown',
+                        content: msg.content || msg.text || msg.message || '',
+                        timestamp: msg.timestamp || msg.created_at
+                    }))
+                };
+
+                if (!normalised.messages || normalised.messages.length === 0) return null;
+
+                const hasContent = normalised.messages.some(msg => {
+                    const content = this.extractTextContent(msg.content);
+                    return content && content.trim().length > 0;
+                });
+
+                return hasContent ? normalised : null;
+            }
+
             processConversations(data) {
-                // Handle different export formats
                 let conversations = [];
-                
+
                 if (Array.isArray(data)) {
                     conversations = data;
                 } else if (data.conversations) {
@@ -2095,102 +2505,76 @@
                     throw new Error('Unrecognized export format');
                 }
 
-                this.conversations = conversations.map(conv => {
-                    // Normalize conversation structure
-                    const messages = conv.messages || conv.chat_messages || [];
-                    const createdAt = conv.created_at || conv.created || conv.timestamp;
-                    const updatedAt = conv.updated_at || conv.updated || conv.last_modified || createdAt;
-                    
-                    // Generate a better title if it's untitled
-                    let title = conv.name || conv.title || 'Untitled Conversation';
-                    if (title === 'Untitled Conversation' && messages.length > 0) {
-                        // Try to get a meaningful title from the first human message
-                        const firstHumanMessage = messages.find(msg => msg.role === 'human' || msg.role === 'user');
-                        if (firstHumanMessage) {
-                            const content = this.extractTextContent(firstHumanMessage.content);
-                            if (content && content.length > 0) {
-                                // Use first 50 characters as title
-                                title = content.substring(0, 50).trim();
-                                if (content.length > 50) title += '...';
-                                // Clean up the title
-                                title = title.replace(/\n/g, ' ').replace(/\s+/g, ' ');
-                            }
-                        }
-                    }
-                    
-                    return {
-                        ...conv,
-                        id: conv.id || conv.uuid || this.generateId(),
-                        name: title,
-                        created_at: createdAt,
-                        updated_at: updatedAt,
-                        messages: messages.map(msg => ({
-                            ...msg,
-                            role: msg.role || msg.sender || 'unknown',
-                            content: msg.content || msg.text || msg.message || '',
-                            timestamp: msg.timestamp || msg.created_at
-                        }))
-                    };
-                }).filter(conv => {
-                    // Filter out conversations with no meaningful content
-                    if (!conv.messages || conv.messages.length === 0) return false;
-                    
-                    // Check if any message has actual text content
-                    const hasContent = conv.messages.some(msg => {
-                        const content = this.extractTextContent(msg.content);
-                        return content && content.trim().length > 0;
-                    });
-                    
-                    return hasContent;
-                });
+                this.conversations = conversations
+                    .map(conv => this.normaliseConversation(conv))
+                    .filter(conv => conv !== null);
 
                 this.filteredConversations = [...this.conversations];
+                this.totalConversationCount = this.conversations.length;
                 this.updateStats();
                 this.renderConversations();
+            }
+
+            estimateWordCount(conv) {
+                let words = 0;
+                for (const msg of conv.messages) {
+                    const text = this.extractTextContent(msg.content);
+                    if (text) words += text.split(/\s+/).length;
+                }
+                return words;
+            }
+
+            getFirstHumanMessage(conv) {
+                const first = conv.messages.find(msg => msg.role === 'human' || msg.role === 'user');
+                if (!first) return '';
+                const text = this.extractTextContent(first.content);
+                return text ? text.substring(0, 200) : '';
             }
 
             generateId() {
                 return Math.random().toString(36).substr(2, 9);
             }
 
-            showInterface() {
+            async showInterface() {
                 document.getElementById('controls').style.display = 'block';
                 document.getElementById('stats').style.display = 'block';
                 document.getElementById('conversationsList').style.display = 'block';
-                // Show export and selection controls
                 document.getElementById('exportButtons').style.display = 'flex';
                 document.getElementById('selectionControls').style.display = 'block';
-
-                // Hide footer when conversations are loaded
                 document.getElementById('footer').classList.add('hidden');
-                
-                // Show large file warning if file is over 50MB or has over 500 conversations
-                const fileSize = this.conversations.length * 1000; // Rough estimate
-                if (this.conversations.length > 500 || fileSize > 50000) {
+
+                const convCount = this.totalConversationCount;
+
+                if (convCount > 500) {
                     const warningElement = document.getElementById('largeFileWarning');
                     warningElement.style.display = 'block';
-                    this.conversationsPerPage = 10; // Smaller page size for large files
-                    
-                    // Auto-hide warning after 7 seconds
+                    this.conversationsPerPage = 10;
                     setTimeout(() => {
                         warningElement.style.opacity = '0';
                         warningElement.style.transition = 'opacity 1s ease-out';
-                        setTimeout(() => {
-                            warningElement.style.display = 'none';
-                        }, 1000); // Wait for fade-out to complete
+                        setTimeout(() => { warningElement.style.display = 'none'; }, 1000);
                     }, 7000);
-                } else if (this.conversations.length > 100) {
+                } else if (convCount > 100) {
                     this.conversationsPerPage = 20;
                 } else {
-                    this.conversationsPerPage = 50; // Show more for smaller collections
+                    this.conversationsPerPage = 50;
                 }
-                
-                // Show pagination if needed
+
+                // IDB mode: load headers for filtering/sorting
+                if (this.useIndexedDB) {
+                    this.idbHeaders = await this.db.getAllConversations();
+                    this.filteredConversations = [...this.idbHeaders];
+                    this.applySorting();
+                }
+
+                await this.updateStats();
+                this.renderConversations();
+
                 if (this.filteredConversations.length > this.conversationsPerPage) {
                     document.getElementById('pagination').style.display = 'flex';
                     document.getElementById('pagination2').style.display = 'flex';
                 }
-                
+
                 this.updatePaginationControls();
             }
 
@@ -2238,22 +2622,31 @@
                 errorDiv.style.display = 'block';
             }
 
-            updateStats() {
-                const totalConversations = this.conversations.length;
-                const totalMessages = this.conversations.reduce((sum, conv) => sum + conv.messages.length, 0);
-                
-                const dates = this.conversations
-                    .map(conv => new Date(conv.created_at))
-                    .filter(date => !isNaN(date))
-                    .sort((a, b) => a - b);
-                
-                const dateRange = dates.length > 0 
-                    ? `${this.formatDate(dates[0])} - ${this.formatDate(dates[dates.length - 1])}`
-                    : 'Unknown';
-                
-                const avgMessages = totalConversations > 0 
-                    ? Math.round(totalMessages / totalConversations)
-                    : 0;
+            async updateStats() {
+                let totalConversations, totalMessages, dateRange, avgMessages;
+
+                if (this.useIndexedDB) {
+                    const stats = await this.db.getStats();
+                    totalConversations = stats.totalConversations;
+                    totalMessages = stats.totalMessages;
+                    avgMessages = stats.avgMessages;
+                    dateRange = stats.dateRange
+                        ? `${this.formatDate(stats.dateRange.earliest)} - ${this.formatDate(stats.dateRange.latest)}`
+                        : 'Unknown';
+                } else {
+                    totalConversations = this.conversations.length;
+                    totalMessages = this.conversations.reduce((sum, conv) => sum + conv.messages.length, 0);
+                    const dates = this.conversations
+                        .map(conv => new Date(conv.created_at))
+                        .filter(date => !isNaN(date))
+                        .sort((a, b) => a - b);
+                    dateRange = dates.length > 0
+                        ? `${this.formatDate(dates[0])} - ${this.formatDate(dates[dates.length - 1])}`
+                        : 'Unknown';
+                    avgMessages = totalConversations > 0
+                        ? Math.round(totalMessages / totalConversations)
+                        : 0;
+                }
 
                 document.getElementById('totalConversations').textContent = totalConversations.toLocaleString();
                 document.getElementById('totalMessages').textContent = totalMessages.toLocaleString();
@@ -2261,76 +2654,103 @@
                 document.getElementById('avgMessages').textContent = avgMessages;
             }
 
-            handleSearch(event) {
-                const query = event.target.value.toLowerCase().trim();
-                
-                if (!query) {
-                    this.filteredConversations = [...this.conversations];
+            async handleSearch(event) {
+                const query = document.getElementById('searchBox').value.toLowerCase().trim();
+
+                if (this.useIndexedDB) {
+                    if (query) {
+                        this.showProgress('Searching...', '');
+                        this.idbSearchResults = await this.db.searchConversations(query);
+                        this.hideProgress();
+                    } else {
+                        this.idbSearchResults = null;
+                    }
+                    this.applyFilters();
+                    this.currentPage = 1;
+                    this.applySorting();
+                    this.renderConversations();
+                    this.updatePaginationControls();
                 } else {
-                    this.filteredConversations = this.conversations.filter(conv => {
-                        const titleMatch = conv.name.toLowerCase().includes(query);
-                        const messageMatch = conv.messages.some(msg => {
-                            const content = this.extractTextContent(msg.content);
-                            return content.toLowerCase().includes(query);
+                    // Existing in-memory search (unchanged behavior)
+                    if (!query) {
+                        this.filteredConversations = [...this.conversations];
+                    } else {
+                        this.filteredConversations = this.conversations.filter(conv => {
+                            const titleMatch = conv.name.toLowerCase().includes(query);
+                            const messageMatch = conv.messages.some(msg => {
+                                const content = this.extractTextContent(msg.content);
+                                return content.toLowerCase().includes(query);
+                            });
+                            return titleMatch || messageMatch;
                         });
-                        return titleMatch || messageMatch;
-                    });
+                    }
+                    this.currentPage = 1;
+                    this.applySorting();
+                    this.renderConversations();
                 }
-                
-                this.currentPage = 1; // Reset to first page
-                this.applySorting();
-                this.renderConversations();
             }
 
-            handleFilterChange() {
-                this.currentPage = 1; // Reset to first page
+            async handleFilterChange() {
+                this.currentPage = 1;
+
+                // IDB mode: ensure search results are cached if search box has text
+                if (this.useIndexedDB) {
+                    const searchQuery = document.getElementById('searchBox').value.toLowerCase().trim();
+                    if (searchQuery && !this.idbSearchResults) {
+                        this.showProgress('Searching...', '');
+                        this.idbSearchResults = await this.db.searchConversations(searchQuery);
+                        this.hideProgress();
+                    }
+                }
+
                 this.applyFilters();
                 this.applySorting();
                 this.renderConversations();
+                this.updatePaginationControls();
             }
 
             applyFilters() {
                 const dateFilter = document.getElementById('dateFilter').value;
                 const showFilter = document.getElementById('showFilter').value;
                 const searchQuery = document.getElementById('searchBox').value.toLowerCase().trim();
-                
-                let filtered = [...this.conversations];
+
+                let filtered = this.useIndexedDB ? [...this.idbHeaders] : [...this.conversations];
 
                 // Apply search filter
                 if (searchQuery) {
-                    filtered = filtered.filter(conv => {
-                        const titleMatch = conv.name.toLowerCase().includes(searchQuery);
-                        const messageMatch = conv.messages.some(msg => {
-                            const content = this.extractTextContent(msg.content);
-                            return content.toLowerCase().includes(searchQuery);
+                    if (this.useIndexedDB) {
+                        if (this.idbSearchResults) {
+                            filtered = filtered.filter(conv => this.idbSearchResults.has(conv.id));
+                        } else {
+                            // Fallback: search names only (deep search requires Enter)
+                            filtered = filtered.filter(conv =>
+                                conv.name.toLowerCase().includes(searchQuery) ||
+                                (conv.firstHumanMessage && conv.firstHumanMessage.toLowerCase().includes(searchQuery))
+                            );
+                        }
+                    } else {
+                        filtered = filtered.filter(conv => {
+                            const titleMatch = conv.name.toLowerCase().includes(searchQuery);
+                            const messageMatch = conv.messages.some(msg => {
+                                const content = this.extractTextContent(msg.content);
+                                return content.toLowerCase().includes(searchQuery);
+                            });
+                            return titleMatch || messageMatch;
                         });
-                        return titleMatch || messageMatch;
-                    });
+                    }
                 }
 
                 // Apply date filter
                 if (dateFilter !== 'all') {
                     const now = new Date();
                     const filterDate = new Date();
-                    
                     switch (dateFilter) {
-                        case 'today':
-                            filterDate.setHours(0, 0, 0, 0);
-                            break;
-                        case 'week':
-                            filterDate.setDate(now.getDate() - 7);
-                            break;
-                        case 'month':
-                            filterDate.setMonth(now.getMonth() - 1);
-                            break;
-                        case 'quarter':
-                            filterDate.setMonth(now.getMonth() - 3);
-                            break;
-                        case 'year':
-                            filterDate.setFullYear(now.getFullYear() - 1);
-                            break;
+                        case 'today': filterDate.setHours(0, 0, 0, 0); break;
+                        case 'week': filterDate.setDate(now.getDate() - 7); break;
+                        case 'month': filterDate.setMonth(now.getMonth() - 1); break;
+                        case 'quarter': filterDate.setMonth(now.getMonth() - 3); break;
+                        case 'year': filterDate.setFullYear(now.getFullYear() - 1); break;
                     }
-                    
                     filtered = filtered.filter(conv => {
                         const convDate = new Date(conv.updated_at || conv.created_at);
                         return convDate >= filterDate;
@@ -2340,14 +2760,22 @@
                 // Apply show filter
                 switch (showFilter) {
                     case 'has-assistant':
-                        filtered = filtered.filter(conv => 
-                            conv.messages.some(msg => msg.role === 'assistant')
-                        );
+                        if (this.useIndexedDB) {
+                            filtered = filtered.filter(conv => conv.hasAssistant);
+                        } else {
+                            filtered = filtered.filter(conv =>
+                                conv.messages.some(msg => msg.role === 'assistant')
+                            );
+                        }
                         break;
                     case 'long':
-                        filtered = filtered.filter(conv => conv.messages.length >= 10);
+                        if (this.useIndexedDB) {
+                            filtered = filtered.filter(conv => conv.messageCount >= 10);
+                        } else {
+                            filtered = filtered.filter(conv => conv.messages.length >= 10);
+                        }
                         break;
-                    case 'recent':
+                    case 'recent': {
                         const recentThreshold = new Date();
                         recentThreshold.setDate(recentThreshold.getDate() - 7);
                         filtered = filtered.filter(conv => {
@@ -2355,6 +2783,7 @@
                             return convDate >= recentThreshold;
                         });
                         break;
+                    }
                 }
 
                 this.filteredConversations = filtered;
@@ -2413,11 +2842,12 @@
             renderConversation(conversation) {
                 const createdDate = this.formatDate(new Date(conversation.created_at));
                 const updatedDate = this.formatDate(new Date(conversation.updated_at || conversation.created_at));
-                const messageCount = conversation.messages.length;
+                const messageCount = this.useIndexedDB ? conversation.messageCount : conversation.messages.length;
 
-                const messagesHtml = conversation.messages.map(msg =>
-                    this.renderMessage(msg)
-                ).join('');
+                // IDB mode: don't pre-render messages (lazy load on expand)
+                const messagesHtml = this.useIndexedDB
+                    ? ''
+                    : conversation.messages.map(msg => this.renderMessage(msg)).join('');
 
                 // Add checkbox if selection mode is active
                 const checkbox = this.selectionMode ? `
@@ -3259,11 +3689,8 @@
                 return formatted;
             }
 
-            toggleConversation(event) {
-                // Don't toggle if clicking on checkbox
-                if (event.target.classList.contains('conversation-checkbox')) {
-                    return;
-                }
+            async toggleConversation(event) {
+                if (event.target.classList.contains('conversation-checkbox')) return;
 
                 const header = event.currentTarget;
                 const content = header.nextElementSibling;
@@ -3272,10 +3699,28 @@
                 if (content.classList.contains('expanded')) {
                     content.classList.remove('expanded');
                     toggle.classList.remove('expanded');
-                } else {
+                    return;
+                }
+
+                // IDB mode: lazy load messages on first expand
+                if (this.useIndexedDB && !content.dataset.loaded) {
+                    const convId = header.closest('.conversation-item').dataset.id;
+                    content.innerHTML = '<div class="loading" style="display: block; padding: 20px;">Loading messages...</div>';
                     content.classList.add('expanded');
                     toggle.classList.add('expanded');
+
+                    try {
+                        const messages = await this.db.getMessages(convId);
+                        content.innerHTML = messages.map(msg => this.renderMessage(msg)).join('');
+                        content.dataset.loaded = 'true';
+                    } catch (e) {
+                        content.innerHTML = '<div class="error" style="display: block;">Failed to load messages</div>';
+                    }
+                    return;
                 }
+
+                content.classList.add('expanded');
+                toggle.classList.add('expanded');
             }
 
             toggleArtifact(artifactId) {
@@ -3417,15 +3862,29 @@
             }
 
             // Export Methods
-            exportSelected() {
+            async exportSelected() {
                 if (this.selectedConversations.size === 0) {
                     alert('No conversations selected');
                     return;
                 }
 
-                const selectedConvs = this.conversations.filter(conv =>
-                    this.selectedConversations.has(conv.id)
-                );
+                let selectedConvs;
+                if (this.useIndexedDB) {
+                    this.showProgress('Exporting...', 'Loading conversation data...');
+                    selectedConvs = [];
+                    for (const id of this.selectedConversations) {
+                        const header = await this.db.getConversation(id);
+                        if (header) {
+                            const messages = await this.db.getMessages(id);
+                            selectedConvs.push({ ...header, messages });
+                        }
+                    }
+                    this.hideProgress();
+                } else {
+                    selectedConvs = this.conversations.filter(conv =>
+                        this.selectedConversations.has(conv.id)
+                    );
+                }
 
                 const dateStr = this.getDateString();
                 const filename = dateStr
@@ -3435,10 +3894,23 @@
                 this.downloadJSON(selectedConvs, filename);
             }
 
-            exportFiltered() {
+            async exportFiltered() {
                 if (this.filteredConversations.length === 0) {
                     alert('No conversations to export');
                     return;
+                }
+
+                let convs;
+                if (this.useIndexedDB) {
+                    this.showProgress('Exporting...', 'Loading conversation data...');
+                    convs = [];
+                    for (const header of this.filteredConversations) {
+                        const messages = await this.db.getMessages(header.id);
+                        convs.push({ ...header, messages });
+                    }
+                    this.hideProgress();
+                } else {
+                    convs = this.filteredConversations;
                 }
 
                 const dateStr = this.getDateString();
@@ -3446,18 +3918,21 @@
                     ? `claude-conversations-filtered-${dateStr}.json`
                     : 'claude-conversations-filtered.json';
 
-                this.downloadJSON(this.filteredConversations, filename);
+                this.downloadJSON(convs, filename);
             }
 
-            exportSingleConversation(conversationId) {
-                const conversation = this.conversations.find(conv => conv.id === conversationId);
-
-                if (!conversation) {
-                    alert('Conversation not found');
-                    return;
+            async exportSingleConversation(conversationId) {
+                let conversation;
+                if (this.useIndexedDB) {
+                    const header = await this.db.getConversation(conversationId);
+                    if (!header) { alert('Conversation not found'); return; }
+                    const messages = await this.db.getMessages(conversationId);
+                    conversation = { ...header, messages };
+                } else {
+                    conversation = this.conversations.find(conv => conv.id === conversationId);
+                    if (!conversation) { alert('Conversation not found'); return; }
                 }
 
-                // Create a sanitized filename from conversation title using settings
                 const sanitizedTitle = conversation.name
                     .replace(/[^a-z0-9]/gi, '-')
                     .replace(/-+/g, '-')
@@ -3679,7 +4154,22 @@
             showProgress(text, subtext = '') {
                 document.getElementById('progressText').textContent = text;
                 document.getElementById('progressSubtext').textContent = subtext;
+                document.getElementById('progressDetail').textContent = '';
+                document.getElementById('progressBarContainer').style.display = 'none';
                 document.getElementById('progressOverlay').classList.add('active');
+            }
+
+            updateProgress(bytesProcessed, totalBytes, convCount, messageCount, startTime) {
+                const percent = Math.round((bytesProcessed / totalBytes) * 100);
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
+                document.getElementById('progressText').textContent = 'Loading conversations...';
+                document.getElementById('progressBarContainer').style.display = 'block';
+                document.getElementById('progressBarFill').style.width = percent + '%';
+                document.getElementById('progressSubtext').textContent =
+                    `${convCount.toLocaleString()} conversations found`;
+                document.getElementById('progressDetail').textContent =
+                    `${this.formatFileSize(bytesProcessed)} / ${this.formatFileSize(totalBytes)} \u2022 ${elapsed}s elapsed`;
             }
 
             hideProgress() {
