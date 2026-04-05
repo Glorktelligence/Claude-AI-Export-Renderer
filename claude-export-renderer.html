@@ -5,6 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claude AI Export Renderer</title>
     <style>
+        :root {
+            /* Dark theme (default) */
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --bg-code: #0a0a0a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #888;
+            --border-primary: #333;
+            --border-secondary: #444;
+            --accent-primary: #ff6b35;
+            --accent-hover: #e55a2e;
+            --accent-blue: #4a9eff;
+            --message-human-bg: #1e2328;
+            --message-assistant-bg: #1a1e1a;
+            --error-bg: #2a1a1a;
+            --error-text: #ff6b6b;
+            --error-border: #4a2a2a;
+            --highlight-bg: #ff6b35;
+            --highlight-text: #000;
+        }
+
+        body.light-theme {
+            /* Light theme */
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e8e8e8;
+            --bg-code: #f8f8f8;
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-tertiary: #6a6a6a;
+            --border-primary: #d0d0d0;
+            --border-secondary: #c0c0c0;
+            --accent-primary: #ff6b35;
+            --accent-hover: #e55a2e;
+            --accent-blue: #2563eb;
+            --message-human-bg: #e3f2fd;
+            --message-assistant-bg: #fff3e0;
+            --error-bg: #fee;
+            --error-text: #c00;
+            --error-border: #fcc;
+            --highlight-bg: #ff6b35;
+            --highlight-text: #fff;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,9 +59,10 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f0f;
-            color: #e0e0e0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
@@ -25,15 +72,15 @@
         }
 
         .header {
-            background: #1a1a1a;
+            background: var(--bg-secondary);
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
-            border: 1px solid #333;
+            border: 1px solid var(--border-primary);
         }
 
         .header h1 {
-            color: #f0f0f0;
+            color: var(--text-primary);
             margin-bottom: 10px;
             font-size: 2rem;
         }
@@ -56,7 +103,7 @@
         }
 
         .file-input-button {
-            background: #ff6b35;
+            background: var(--accent-primary);
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
@@ -67,25 +114,25 @@
         }
 
         .file-input-button:hover {
-            background: #e55a2e;
+            background: var(--accent-hover);
         }
 
         .controls {
-            background: #1a1a1a;
+            background: var(--bg-secondary);
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
-            border: 1px solid #333;
+            border: 1px solid var(--border-primary);
             display: none;
         }
 
         .search-box {
             width: calc(100% - 80px);
             padding: 12px;
-            background: #2a2a2a;
-            border: 1px solid #444;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-secondary);
             border-radius: 8px 0 0 8px;
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-size: 16px;
             margin-bottom: 15px;
             display: inline-block;
@@ -94,8 +141,8 @@
         .search-button {
             width: 80px;
             padding: 12px;
-            background: #ff6b35;
-            border: 1px solid #ff6b35;
+            background: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
             border-radius: 0 8px 8px 0;
             color: white;
             font-size: 16px;
@@ -106,12 +153,12 @@
         }
 
         .search-button:hover {
-            background: #e55a2e;
+            background: var(--accent-hover);
         }
 
         .search-box:focus {
             outline: none;
-            border-color: #ff6b35;
+            border-color: var(--accent-primary);
         }
 
         .filters {
@@ -129,24 +176,24 @@
 
         .filter-group label {
             font-size: 14px;
-            color: #b0b0b0;
+            color: var(--text-secondary);
         }
 
         .filter-select {
             padding: 8px 12px;
-            background: #2a2a2a;
-            border: 1px solid #444;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-secondary);
             border-radius: 6px;
-            color: #e0e0e0;
+            color: var(--text-primary);
             min-width: 120px;
         }
 
         .stats {
-            background: #1a1a1a;
+            background: var(--bg-secondary);
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid #333;
+            border: 1px solid var(--border-primary);
             display: none;
         }
 
@@ -163,12 +210,12 @@
         .stat-value {
             font-size: 24px;
             font-weight: bold;
-            color: #ff6b35;
+            color: var(--accent-primary);
         }
 
         .stat-label {
             font-size: 14px;
-            color: #b0b0b0;
+            color: var(--text-secondary);
         }
 
         .conversations-list {
@@ -176,8 +223,8 @@
         }
 
         .conversation-item {
-            background: #1a1a1a;
-            border: 1px solid #333;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
             border-radius: 12px;
             margin-bottom: 20px;
             overflow: hidden;
@@ -185,13 +232,13 @@
         }
 
         .conversation-item:hover {
-            border-color: #444;
+            border-color: var(--border-secondary);
         }
 
         .conversation-header {
-            background: #222;
+            background: var(--bg-tertiary);
             padding: 15px 20px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-primary);
             cursor: pointer;
             display: flex;
             justify-content: space-between;
@@ -201,14 +248,14 @@
         .conversation-title {
             font-size: 18px;
             font-weight: 600;
-            color: #f0f0f0;
+            color: var(--text-primary);
         }
 
         .conversation-meta {
             display: flex;
             gap: 20px;
             font-size: 14px;
-            color: #b0b0b0;
+            color: var(--text-secondary);
         }
 
         .conversation-content {
@@ -228,13 +275,13 @@
         }
 
         .message.human {
-            background: #1e2328;
-            border-left-color: #4a9eff;
+            background: var(--message-human-bg);
+            border-left-color: var(--accent-blue);
         }
 
         .message.assistant {
-            background: #1a1e1a;
-            border-left-color: #ff6b35;
+            background: var(--message-assistant-bg);
+            border-left-color: var(--accent-primary);
         }
 
         .message-role {
@@ -246,11 +293,11 @@
         }
 
         .message.human .message-role {
-            color: #4a9eff;
+            color: var(--accent-blue);
         }
 
         .message.assistant .message-role {
-            color: #ff6b35;
+            color: var(--accent-primary);
         }
 
         .message-content {
@@ -260,14 +307,14 @@
 
         .message-timestamp {
             font-size: 12px;
-            color: #888;
+            color: var(--text-tertiary);
             margin-top: 8px;
         }
 
         .expand-toggle {
             background: none;
             border: none;
-            color: #ff6b35;
+            color: var(--accent-primary);
             cursor: pointer;
             font-size: 18px;
             transition: transform 0.3s;
@@ -287,7 +334,7 @@
         .export-single-btn {
             background: none;
             border: none;
-            color: #888;
+            color: var(--text-tertiary);
             cursor: pointer;
             font-size: 18px;
             padding: 4px 8px;
@@ -310,22 +357,22 @@
         .loading {
             text-align: center;
             padding: 40px;
-            color: #b0b0b0;
+            color: var(--text-secondary);
         }
 
         .error {
-            background: #2a1a1a;
-            color: #ff6b6b;
+            background: var(--error-bg);
+            color: var(--error-text);
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid #4a2a2a;
+            border: 1px solid var(--error-border);
             margin-bottom: 20px;
         }
 
         .no-results {
             text-align: center;
             padding: 40px;
-            color: #888;
+            color: var(--text-tertiary);
             font-style: italic;
         }
 
@@ -351,19 +398,19 @@
 
         /* Highlight search matches */
         .highlight {
-            background-color: #ff6b35;
-            color: #000;
+            background-color: var(--highlight-bg);
+            color: var(--highlight-text);
             padding: 2px 4px;
             border-radius: 3px;
         }
 
         /* Code block styling */
         pre {
-            background: #0a0a0a;
+            background: var(--bg-code);
             padding: 12px;
             border-radius: 6px;
             overflow-x: auto;
-            border: 1px solid #333;
+            border: 1px solid var(--border-primary);
             margin: 10px 0;
         }
 
@@ -372,16 +419,37 @@
             font-size: 14px;
         }
 
+        /* Chat reference links styling */
+        .message-content a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .message-content a:hover {
+            border-bottom-color: var(--accent-blue);
+        }
+
+        body.light-theme .message-content a {
+            color: #2563eb;
+        }
+
+        body.light-theme .message-content a:hover {
+            border-bottom-color: #2563eb;
+        }
+
         /* Artifact styling */
         .artifact-container {
             margin: 10px 0;
-            border: 1px solid #444;
+            border: 1px solid var(--border-secondary);
             border-radius: 6px;
             overflow: hidden;
         }
 
         .artifact-header {
-            background: #2a2a2a;
+            background: var(--bg-tertiary);
             padding: 8px 12px;
             display: flex;
             align-items: center;
@@ -394,7 +462,7 @@
         }
 
         .artifact-header:hover {
-            background: #333;
+            background: var(--border-primary);
         }
 
         .artifact-header-left {
@@ -404,7 +472,7 @@
         }
 
         .artifact-toggle {
-            color: #ff6b35;
+            color: var(--accent-primary);
             font-size: 12px;
             transition: transform 0.3s;
         }
@@ -419,13 +487,13 @@
 
         .artifact-title {
             font-weight: 600;
-            color: #f0f0f0;
+            color: var(--text-primary);
         }
 
         .artifact-type {
-            color: #ff6b35;
+            color: var(--accent-primary);
             font-size: 12px;
-            background: #1a1a1a;
+            background: var(--bg-secondary);
             padding: 2px 6px;
             border-radius: 3px;
             margin-left: auto;
@@ -433,9 +501,9 @@
 
         .artifact-content {
             display: none;
-            background: #0a0a0a;
+            background: var(--bg-code);
             padding: 12px;
-            border-top: 1px solid #444;
+            border-top: 1px solid var(--border-secondary);
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
@@ -447,20 +515,20 @@
         }
 
         .artifact-content.markdown-content {
-            background: #1a1a1a;
+            background: var(--bg-secondary);
             line-height: 1.6;
         }
 
         .artifact-content.markdown-content h1,
         .artifact-content.markdown-content h2,
         .artifact-content.markdown-content h3 {
-            color: #f0f0f0;
+            color: var(--text-primary);
             margin: 15px 0 10px 0;
         }
 
         .artifact-content.markdown-content h1 {
             font-size: 1.5em;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-primary);
             padding-bottom: 5px;
         }
 
@@ -475,13 +543,13 @@
         /* Collapsible code block styling */
         .collapsible-code-block {
             margin: 10px 0;
-            border: 1px solid #333;
+            border: 1px solid var(--border-primary);
             border-radius: 6px;
             overflow: hidden;
         }
 
         .code-block-header {
-            background: #2a2a2a;
+            background: var(--bg-tertiary);
             padding: 8px 12px;
             display: flex;
             align-items: center;
@@ -492,12 +560,12 @@
         }
 
         .code-block-header:hover {
-            background: #333;
+            background: var(--border-primary);
         }
 
         .code-block-label {
             font-size: 12px;
-            color: #888;
+            color: var(--text-tertiary);
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
         }
 
@@ -533,8 +601,8 @@
         /* Settings Modal */
         .settings-btn {
             background: none;
-            border: 1px solid #444;
-            color: #888;
+            border: 1px solid var(--border-secondary);
+            color: var(--text-tertiary);
             cursor: pointer;
             font-size: 20px;
             padding: 6px 12px;
@@ -544,9 +612,27 @@
         }
 
         .settings-btn:hover {
-            background: #2a2a2a;
-            color: #ff6b35;
-            border-color: #ff6b35;
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-secondary);
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 20px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
         }
 
         .modal-overlay {
@@ -567,8 +653,8 @@
         }
 
         .modal {
-            background: #1a1a1a;
-            border: 1px solid #444;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-secondary);
             border-radius: 12px;
             padding: 30px;
             max-width: 500px;
@@ -583,25 +669,25 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-primary);
         }
 
         .modal-header h2 {
-            color: #f0f0f0;
+            color: var(--text-primary);
             margin: 0;
         }
 
         .modal-close {
             background: none;
             border: none;
-            color: #888;
+            color: var(--text-tertiary);
             cursor: pointer;
             font-size: 24px;
             transition: color 0.2s;
         }
 
         .modal-close:hover {
-            color: #ff6b35;
+            color: var(--accent-primary);
         }
 
         .settings-group {
@@ -610,7 +696,7 @@
 
         .settings-group label {
             display: block;
-            color: #b0b0b0;
+            color: var(--text-secondary);
             margin-bottom: 8px;
             font-size: 14px;
         }
@@ -619,10 +705,10 @@
         .settings-group select {
             width: 100%;
             padding: 10px;
-            background: #2a2a2a;
-            border: 1px solid #444;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-secondary);
             border-radius: 6px;
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-size: 14px;
         }
 
@@ -640,7 +726,7 @@
 
         .settings-description {
             font-size: 12px;
-            color: #888;
+            color: var(--text-tertiary);
             margin-top: 5px;
         }
 
@@ -650,7 +736,7 @@
             gap: 10px;
             margin-top: 20px;
             padding-top: 15px;
-            border-top: 1px solid #333;
+            border-top: 1px solid var(--border-primary);
         }
 
         .modal-btn {
@@ -663,22 +749,22 @@
         }
 
         .modal-btn.primary {
-            background: #ff6b35;
+            background: var(--accent-primary);
             color: white;
         }
 
         .modal-btn.primary:hover {
-            background: #e55a2e;
+            background: var(--accent-hover);
         }
 
         .modal-btn.secondary {
-            background: #2a2a2a;
-            color: #e0e0e0;
-            border: 1px solid #444;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-secondary);
         }
 
         .modal-btn.secondary:hover {
-            background: #3a3a3a;
+            background: var(--border-primary);
         }
 
         /* Progress Indicator */
@@ -700,8 +786,8 @@
         }
 
         .progress-container {
-            background: #1a1a1a;
-            border: 1px solid #444;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-secondary);
             border-radius: 12px;
             padding: 30px;
             text-align: center;
@@ -711,8 +797,8 @@
         .progress-spinner {
             width: 50px;
             height: 50px;
-            border: 4px solid #333;
-            border-top: 4px solid #ff6b35;
+            border: 4px solid var(--border-primary);
+            border-top: 4px solid var(--accent-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
@@ -724,22 +810,22 @@
         }
 
         .progress-text {
-            color: #e0e0e0;
+            color: var(--text-primary);
             font-size: 16px;
             margin-bottom: 10px;
         }
 
         .progress-subtext {
-            color: #888;
+            color: var(--text-tertiary);
             font-size: 14px;
         }
 
         .footer {
-            background: #1a1a1a;
+            background: var(--bg-secondary);
             padding: 20px;
             border-radius: 12px;
             margin-top: 40px;
-            border: 1px solid #333;
+            border: 1px solid var(--border-primary);
             text-align: center;
             display: block;
         }
@@ -750,12 +836,12 @@
 
         .footer p {
             margin: 5px 0;
-            color: #b0b0b0;
+            color: var(--text-secondary);
             font-size: 14px;
         }
 
         .footer a {
-            color: #ff6b35;
+            color: var(--accent-primary);
             text-decoration: none;
         }
 
@@ -773,16 +859,16 @@
         }
 
         .pagination button {
-            background: #2a2a2a;
-            border: 1px solid #444;
-            color: #e0e0e0;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-secondary);
+            color: var(--text-primary);
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
         }
 
         .pagination button:hover:not(:disabled) {
-            background: #3a3a3a;
+            background: var(--border-primary);
         }
 
         .pagination button:disabled {
@@ -791,16 +877,16 @@
         }
 
         .pagination .current-page {
-            color: #ff6b35;
+            color: var(--accent-primary);
             font-weight: bold;
         }
 
         .large-file-warning {
-            background: #2a1a1a;
+            background: var(--error-bg);
             color: #ffaa00;
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid #4a3a2a;
+            border: 1px solid var(--error-border);
             margin-bottom: 20px;
             display: none;
         }
@@ -835,11 +921,11 @@
 
         .bulk-actions-bar {
             display: none;
-            background: #1a1a1a;
+            background: var(--bg-secondary);
             padding: 15px 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid #333;
+            border: 1px solid var(--border-primary);
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
@@ -850,16 +936,16 @@
         }
 
         .bulk-actions-bar .selection-count {
-            color: #ff6b35;
+            color: var(--accent-primary);
             font-weight: 600;
             font-size: 16px;
         }
 
         .bulk-action-btn {
-            background: #2a2a2a;
-            color: #e0e0e0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             padding: 8px 16px;
-            border: 1px solid #444;
+            border: 1px solid var(--border-secondary);
             border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
@@ -867,17 +953,17 @@
         }
 
         .bulk-action-btn:hover {
-            background: #3a3a3a;
-            border-color: #555;
+            background: var(--border-primary);
+            border-color: var(--border-secondary);
         }
 
         .bulk-action-btn.primary {
-            background: #ff6b35;
-            border-color: #ff6b35;
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
         }
 
         .bulk-action-btn.primary:hover {
-            background: #e55a2e;
+            background: var(--accent-hover);
         }
 
         .bulk-action-btn:disabled {
@@ -933,6 +1019,291 @@
             color: #666;
             cursor: not-allowed;
         }
+
+        /* Content Block Rendering (v2.0) */
+
+        /* Tool Use Blocks */
+        .tool-use-container {
+            margin: 10px 0;
+            border: 1px solid var(--border-secondary);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .tool-use-header {
+            background: var(--bg-tertiary);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .tool-use-header:hover {
+            background: var(--border-primary);
+        }
+
+        .tool-use-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-use-icon {
+            font-size: 16px;
+        }
+
+        .tool-use-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tool-use-toggle {
+            color: var(--accent-primary);
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .tool-use-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .tool-use-content {
+            display: none;
+            background: var(--bg-code);
+            padding: 12px;
+            border-top: 1px solid var(--border-secondary);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .tool-use-content.expanded {
+            display: block;
+            max-height: none;
+        }
+
+        /* Tool Result Blocks */
+        .tool-result-container {
+            margin: 10px 0;
+            border: 1px solid var(--border-secondary);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .tool-result-header {
+            background: var(--bg-tertiary);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .tool-result-header:hover {
+            background: var(--border-primary);
+        }
+
+        .tool-result-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-result-toggle {
+            color: var(--accent-primary);
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .tool-result-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .tool-result-content {
+            display: none;
+            background: var(--bg-code);
+            padding: 12px;
+            border-top: 1px solid var(--border-secondary);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .tool-result-content.expanded {
+            display: block;
+            max-height: none;
+        }
+
+        /* Thinking Blocks */
+        .thinking-container {
+            margin: 10px 0;
+            border: 1px solid var(--border-secondary);
+            border-radius: 6px;
+            overflow: hidden;
+            opacity: 0.85;
+        }
+
+        .thinking-header {
+            background: var(--bg-tertiary);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .thinking-header:hover {
+            background: var(--border-primary);
+        }
+
+        .thinking-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .thinking-icon {
+            font-size: 16px;
+        }
+
+        .thinking-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .thinking-tokens {
+            color: var(--text-tertiary);
+            font-size: 12px;
+        }
+
+        .thinking-toggle {
+            color: var(--accent-primary);
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .thinking-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .thinking-content {
+            display: none;
+            background: var(--bg-code);
+            padding: 12px;
+            border-top: 1px solid var(--border-secondary);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .thinking-content.expanded {
+            display: block;
+            max-height: none;
+        }
+
+        /* Terminal Block (bash_tool) */
+        .terminal-block {
+            background: #0a0a0a;
+            border-radius: 6px;
+            overflow: hidden;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            padding: 12px;
+        }
+
+        .terminal-prompt {
+            color: #4a9eff;
+        }
+
+        .terminal-command {
+            color: #4ade80;
+        }
+
+        .terminal-output {
+            color: #9ca3af;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #1a1a1a;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Diff Block (str_replace) */
+        .diff-block {
+            border-radius: 6px;
+            overflow: hidden;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .diff-header {
+            background: var(--bg-tertiary);
+            padding: 6px 12px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .diff-removed {
+            background: #2a1515;
+            color: #ff8888;
+            padding: 4px 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .diff-added {
+            background: #152a15;
+            color: #88ff88;
+            padding: 4px 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Image Block */
+        .image-block {
+            margin: 10px 0;
+        }
+
+        .image-block img {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 1px solid var(--border-primary);
+        }
+
+        /* Light theme overrides for v2.0 blocks */
+        body.light-theme .terminal-block {
+            background: #1a1a2e;
+        }
+
+        body.light-theme .diff-removed {
+            background: #ffeef0;
+            color: #cb2431;
+        }
+
+        body.light-theme .diff-added {
+            background: #e6ffec;
+            color: #22863a;
+        }
     </style>
 </head>
 <body>
@@ -951,12 +1322,14 @@
                 </div>
                 
                 <div class="language-selector" style="display: flex; align-items: center;">
-                    <select id="languageSelect" style="padding: 8px 12px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #e0e0e0;">
+                    <select id="languageSelect" style="padding: 8px 12px; background: var(--bg-tertiary); border: 1px solid var(--border-secondary); border-radius: 6px; color: var(--text-primary);">
                         <option value="en">English</option>
                         <option value="de">Deutsch</option>
                         <option value="es">Español</option>
                         <option value="fr">Français</option>
                     </select>
+                    <button id="themeToggle" class="theme-toggle" title="Toggle Theme">🌓</button>
+                    <button id="shortcutsBtn" class="settings-btn" title="Keyboard Shortcuts (?)">⌨️</button>
                     <button id="settingsBtn" class="settings-btn" title="Export Settings">⚙️</button>
                 </div>
             </div>
@@ -1007,6 +1380,43 @@
                 <div class="modal-footer">
                     <button class="modal-btn secondary" id="resetSettings" data-i18n="reset-settings">Reset to Defaults</button>
                     <button class="modal-btn primary" id="saveSettings" data-i18n="save-settings">Save Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Modal -->
+        <div id="shortcutsModal" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 data-i18n="shortcuts-title">Keyboard Shortcuts</h2>
+                    <button class="modal-close" id="closeShortcuts">×</button>
+                </div>
+
+                <div style="display: grid; gap: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span data-i18n="shortcut-search">Focus Search</span>
+                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">Ctrl+K</kbd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span data-i18n="shortcut-help">Show Shortcuts</span>
+                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">?</kbd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span data-i18n="shortcut-escape">Close Modals</span>
+                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">Esc</kbd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span data-i18n="shortcut-next-page">Next Page</span>
+                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">→</kbd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span data-i18n="shortcut-prev-page">Previous Page</span>
+                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">←</kbd>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="modal-btn primary" id="closeShortcutsBtn" data-i18n="close">Close</button>
                 </div>
             </div>
         </div>
@@ -1218,7 +1628,14 @@
                 'include-timestamp-desc': 'Add timestamp to filename (e.g., 2024-10-26-14-30)',
                 'reset-settings': 'Reset to Defaults',
                 'save-settings': 'Save Settings',
-                'exporting': 'Exporting...'
+                'exporting': 'Exporting...',
+                'shortcuts-title': 'Keyboard Shortcuts',
+                'shortcut-search': 'Focus Search',
+                'shortcut-help': 'Show Shortcuts',
+                'shortcut-escape': 'Close Modals',
+                'shortcut-next-page': 'Next Page',
+                'shortcut-prev-page': 'Previous Page',
+                'close': 'Close'
             },
             de: {
                 'main-title': 'Claude AI Export Renderer',
@@ -1286,7 +1703,14 @@
                 'include-timestamp-desc': 'Zeitstempel zum Dateinamen hinzufügen (z.B. 2024-10-26-14-30)',
                 'reset-settings': 'Auf Standard zurücksetzen',
                 'save-settings': 'Einstellungen speichern',
-                'exporting': 'Exportiere...'
+                'exporting': 'Exportiere...',
+                'shortcuts-title': 'Tastaturkürzel',
+                'shortcut-search': 'Suche fokussieren',
+                'shortcut-help': 'Tastaturkürzel anzeigen',
+                'shortcut-escape': 'Modale schließen',
+                'shortcut-next-page': 'Nächste Seite',
+                'shortcut-prev-page': 'Vorherige Seite',
+                'close': 'Schließen'
             },
             es: {
                 'main-title': 'Claude AI Export Renderer',
@@ -1354,7 +1778,14 @@
                 'include-timestamp-desc': 'Agregar marca de tiempo al nombre de archivo (ej. 2024-10-26-14-30)',
                 'reset-settings': 'Restablecer Valores Predeterminados',
                 'save-settings': 'Guardar Configuración',
-                'exporting': 'Exportando...'
+                'exporting': 'Exportando...',
+                'shortcuts-title': 'Atajos de Teclado',
+                'shortcut-search': 'Enfocar Búsqueda',
+                'shortcut-help': 'Mostrar Atajos',
+                'shortcut-escape': 'Cerrar Modales',
+                'shortcut-next-page': 'Página Siguiente',
+                'shortcut-prev-page': 'Página Anterior',
+                'close': 'Cerrar'
             },
             fr: {
                 'main-title': 'Claude AI Export Renderer',
@@ -1422,7 +1853,14 @@
                 'include-timestamp-desc': 'Ajouter l\'horodatage au nom de fichier (ex. 2024-10-26-14-30)',
                 'reset-settings': 'Réinitialiser aux Valeurs par Défaut',
                 'save-settings': 'Enregistrer les Paramètres',
-                'exporting': 'Exportation en cours...'
+                'exporting': 'Exportation en cours...',
+                'shortcuts-title': 'Raccourcis Clavier',
+                'shortcut-search': 'Focus Recherche',
+                'shortcut-help': 'Afficher les Raccourcis',
+                'shortcut-escape': 'Fermer les Modales',
+                'shortcut-next-page': 'Page Suivante',
+                'shortcut-prev-page': 'Page Précédente',
+                'close': 'Fermer'
             }
         };
 
@@ -1474,6 +1912,42 @@
             setLanguage(detectedLang);
         }
 
+        // Tool icon and display name maps (v2.0)
+        const TOOL_ICONS = {
+            'web_search': '\uD83D\uDD0D', 'web_fetch': '\uD83C\uDF10',
+            'bash_tool': '\u26A1', 'str_replace': '\u270F\uFE0F',
+            'create_file': '\uD83D\uDCC4', 'view': '\uD83D\uDC41\uFE0F',
+            'image_search': '\uD83D\uDDBC\uFE0F', 'conversation_search': '\uD83D\uDCAC',
+            'recent_chats': '\uD83D\uDCCB', 'memory_user_edits': '\uD83E\uDDE0',
+            'present_files': '\uD83D\uDCCE', 'chart_display_v0': '\uD83D\uDCCA',
+            'event_create_v1': '\uD83D\uDCC5', 'places_search': '\uD83D\uDCCD',
+            'places_map_display_v0': '\uD83D\uDDFA\uFE0F', 'fetch_sports_data': '\uD83C\uDFDF\uFE0F',
+            'ask_user_input_v0': '\u2753', 'message_compose_v1': '\u2709\uFE0F',
+            'recipe_display_v0': '\uD83C\uDF73', 'weather_fetch': '\uD83C\uDF24\uFE0F'
+        };
+
+        const TOOL_NAMES = {
+            'web_search': 'Web Search', 'web_fetch': 'Web Fetch',
+            'bash_tool': 'Terminal', 'str_replace': 'File Edit',
+            'create_file': 'Create File', 'view': 'View File',
+            'image_search': 'Image Search', 'conversation_search': 'Search Past Chats',
+            'recent_chats': 'Recent Chats', 'memory_user_edits': 'Memory Edit',
+            'present_files': 'Present Files', 'chart_display_v0': 'Chart',
+            'event_create_v1': 'Calendar', 'places_search': 'Places Search',
+            'places_map_display_v0': 'Map', 'fetch_sports_data': 'Sports Data',
+            'ask_user_input_v0': 'User Input', 'message_compose_v1': 'Message Draft',
+            'recipe_display_v0': 'Recipe', 'weather_fetch': 'Weather'
+        };
+
+        function toggleToolBlock(blockId) {
+            const content = document.getElementById(blockId);
+            const toggle = document.getElementById(blockId + '-toggle');
+            if (content && toggle) {
+                content.classList.toggle('expanded');
+                toggle.classList.toggle('expanded');
+            }
+        }
+
         class ClaudeExportRenderer {
             constructor() {
                 this.conversations = [];
@@ -1485,17 +1959,37 @@
                 this.selectedConversations = new Set();
                 // Export settings
                 this.loadSettings();
+                // Load theme preference
+                this.loadTheme();
                 this.initializeEventListeners();
+            }
+
+            loadTheme() {
+                const savedTheme = localStorage.getItem('claude-export-theme');
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-theme');
+                }
+            }
+
+            toggleTheme() {
+                document.body.classList.toggle('light-theme');
+                const isLight = document.body.classList.contains('light-theme');
+                localStorage.setItem('claude-export-theme', isLight ? 'light' : 'dark');
             }
 
             initializeEventListeners() {
                 document.getElementById('fileInput').addEventListener('change', this.handleFileSelect.bind(this));
-                
+
+                // Theme toggle
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
                 // Language selector
                 document.getElementById('languageSelect').addEventListener('change', (event) => {
                     setLanguage(event.target.value);
                 });
-                
+
                 // Search on Enter key only, not on every keystroke
                 const searchBox = document.getElementById('searchBox');
                 searchBox.addEventListener('keypress', (event) => {
@@ -1534,6 +2028,17 @@
                 document.getElementById('settingsModal').addEventListener('click', (e) => {
                     if (e.target.id === 'settingsModal') this.closeSettings();
                 });
+
+                // Keyboard shortcuts modal event listeners
+                document.getElementById('shortcutsBtn').addEventListener('click', this.openShortcuts.bind(this));
+                document.getElementById('closeShortcuts').addEventListener('click', this.closeShortcuts.bind(this));
+                document.getElementById('closeShortcutsBtn').addEventListener('click', this.closeShortcuts.bind(this));
+                document.getElementById('shortcutsModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'shortcutsModal') this.closeShortcuts();
+                });
+
+                // Global keyboard shortcuts
+                document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
 
                 // Pagination event listeners
                 this.addPaginationListeners('');
@@ -1953,9 +2458,9 @@
 
             renderMessage(message) {
                 const role = message.role || 'unknown';
-                const content = this.formatMessageContent(message.content);
+                const content = this.renderMessageContent(message.content);
                 const timestamp = message.timestamp ? this.formatDate(new Date(message.timestamp)) : '';
-                
+
                 return `
                     <div class="message ${role}">
                         <div class="message-role">${role}</div>
@@ -1963,6 +2468,282 @@
                         ${timestamp ? `<div class="message-timestamp">${timestamp}</div>` : ''}
                     </div>
                 `;
+            }
+
+            // Content block rendering system (v2.0)
+
+            renderMessageContent(content) {
+                if (!content) return '';
+
+                // String content → use existing formatMessageContent (handles artifacts, markdown, etc.)
+                if (typeof content === 'string') {
+                    return this.formatMessageContent(content);
+                }
+
+                // Array content → render each typed block
+                if (Array.isArray(content)) {
+                    // Collect tool results for pairing with tool_use blocks
+                    const toolResults = new Map();
+                    content.forEach(block => {
+                        if (block && block.type === 'tool_result' && block.tool_use_id) {
+                            toolResults.set(block.tool_use_id, block);
+                        }
+                    });
+
+                    const parts = [];
+                    content.forEach(block => {
+                        if (!block) return;
+
+                        // Skip tool_results that will be paired with a matching tool_use in this array
+                        if (block.type === 'tool_result' && block.tool_use_id) {
+                            const hasMatch = content.some(b => b.type === 'tool_use' && b.id === block.tool_use_id);
+                            if (hasMatch) return;
+                        }
+
+                        const rendered = this.renderContentBlock(block, toolResults);
+                        if (rendered) parts.push(rendered);
+                    });
+
+                    let result = parts.join('');
+
+                    // Highlight search matches
+                    const searchQuery = document.getElementById('searchBox').value.trim();
+                    if (searchQuery) {
+                        const regex = new RegExp(`(${this.escapeRegex(searchQuery)})`, 'gi');
+                        result = result.replace(regex, '<span class="highlight">$1</span>');
+                    }
+
+                    return result;
+                }
+
+                // Object content → single block
+                if (typeof content === 'object') {
+                    return this.renderContentBlock(content, new Map());
+                }
+
+                return this.escapeHtml(String(content));
+            }
+
+            renderContentBlock(block, toolResults) {
+                if (!block || typeof block !== 'object') {
+                    if (typeof block === 'string' && block.trim()) {
+                        return this.formatMarkdown(this.escapeHtml(block));
+                    }
+                    return '';
+                }
+
+                switch (block.type) {
+                    case 'text': {
+                        const text = block.text || '';
+                        if (!String(text).trim()) return '';
+                        let formatted = this.escapeHtml(String(text));
+                        formatted = this.parseChatReferences(formatted);
+                        formatted = this.formatMarkdown(formatted);
+                        return formatted;
+                    }
+                    case 'tool_use': {
+                        // Preserve existing artifact rendering for artifact tool_use
+                        if (block.name === 'artifacts' && block.input) {
+                            return this.renderArtifactBlock(block);
+                        }
+                        // Regular tool use
+                        let html = this.renderToolUseBlock(block);
+                        // Append paired tool result if available
+                        if (block.id && toolResults && toolResults.has(block.id)) {
+                            html += this.renderToolResultBlock(toolResults.get(block.id));
+                        }
+                        return html;
+                    }
+                    case 'tool_result':
+                        return this.renderToolResultBlock(block);
+                    case 'thinking':
+                        return this.renderThinkingBlock(block);
+                    case 'image':
+                        return this.renderImageBlock(block);
+                    default:
+                        // Skip metadata-only blocks
+                        if (block.type === 'token_budget') return '';
+                        const keys = Object.keys(block);
+                        if (keys.every(k => ['start_timestamp', 'stop_timestamp', 'flags', 'type', 'citations'].includes(k))) return '';
+                        if (block.text && String(block.text).trim()) {
+                            return this.formatMarkdown(this.escapeHtml(String(block.text)));
+                        }
+                        return '';
+                }
+            }
+
+            renderArtifactBlock(block) {
+                const input = block.input;
+                const rawContent = input.content
+                    ? (typeof input.content === 'object' ? JSON.stringify(input.content, null, 2) : input.content)
+                    : '[No content]';
+                const artifactType = input.type || 'unknown';
+                const artifactTitle = input.title || input.id || 'Untitled Artifact';
+                const artifactId = 'artifact-' + Math.random().toString(36).substr(2, 9);
+
+                let formatted = this.escapeHtml(String(rawContent));
+
+                const header = `<div class="artifact-header" onclick="app.toggleArtifact('${artifactId}')">
+                    <div class="artifact-header-left">
+                        <span class="artifact-icon">\uD83D\uDCC4</span>
+                        <span class="artifact-title">${this.escapeHtml(artifactTitle)}</span>
+                        <span class="artifact-type">${this.escapeHtml(artifactType)}</span>
+                    </div>
+                    <span class="artifact-toggle" id="${artifactId}-toggle">\u25BC</span>
+                </div>`;
+
+                let contentHtml = '';
+                if (artifactType === 'text/markdown' || artifactType === 'markdown') {
+                    contentHtml = '<div class="artifact-content markdown-content" id="' + artifactId + '">' + this.formatMarkdown(formatted) + '</div>';
+                } else if (artifactType === 'text/html' || artifactType === 'html') {
+                    contentHtml = '<div class="artifact-content html-content" id="' + artifactId + '"><pre><code>' + formatted + '</code></pre></div>';
+                } else {
+                    contentHtml = '<div class="artifact-content" id="' + artifactId + '"><pre><code>' + formatted + '</code></pre></div>';
+                }
+
+                return '<div class="artifact-container">' + header + contentHtml + '</div>';
+            }
+
+            renderToolUseBlock(block) {
+                const toolName = block.name || 'unknown';
+                const icon = TOOL_ICONS[toolName] || '\uD83D\uDD27';
+                const displayName = TOOL_NAMES[toolName] || toolName;
+                const blockId = 'tool-' + Math.random().toString(36).substr(2, 9);
+
+                const inputHtml = this.renderToolInput(toolName, block.input || {});
+
+                return `<div class="tool-use-container">
+                    <div class="tool-use-header" onclick="toggleToolBlock('${blockId}')">
+                        <div class="tool-use-header-left">
+                            <span class="tool-use-icon">${icon}</span>
+                            <span class="tool-use-name">${this.escapeHtml(displayName)}</span>
+                        </div>
+                        <span class="tool-use-toggle" id="${blockId}-toggle">\u25BC</span>
+                    </div>
+                    <div class="tool-use-content" id="${blockId}">${inputHtml}</div>
+                </div>`;
+            }
+
+            renderToolInput(toolName, input) {
+                switch (toolName) {
+                    case 'web_search':
+                        return `<div style="color: var(--text-secondary);">Query: <strong>${this.escapeHtml(input.query || '')}</strong></div>`;
+
+                    case 'bash_tool':
+                        return `<div class="terminal-block">
+                            <span class="terminal-prompt">$ </span><span class="terminal-command">${this.escapeHtml(input.command || '')}</span>
+                        </div>`;
+
+                    case 'str_replace': {
+                        const filePath = input.file_path || input.path || 'unknown file';
+                        let html = `<div class="diff-block"><div class="diff-header">\uD83D\uDCC4 ${this.escapeHtml(filePath)}</div>`;
+                        if (input.old_str !== undefined) {
+                            html += `<div class="diff-removed">- ${this.escapeHtml(input.old_str)}</div>`;
+                        }
+                        if (input.new_str !== undefined) {
+                            html += `<div class="diff-added">+ ${this.escapeHtml(input.new_str)}</div>`;
+                        }
+                        html += '</div>';
+                        return html;
+                    }
+
+                    case 'create_file': {
+                        const fileName = input.file_path || input.path || 'new file';
+                        const fileContent = input.file_text || input.content || '';
+                        return `<div>
+                            <div style="color: var(--text-secondary); margin-bottom: 8px;">\uD83D\uDCC4 ${this.escapeHtml(fileName)}</div>
+                            <pre><code>${this.escapeHtml(fileContent)}</code></pre>
+                        </div>`;
+                    }
+
+                    case 'view': {
+                        const filePath = input.file_path || input.path || '';
+                        const lineRange = input.view_range ? ` (lines ${input.view_range[0]}-${input.view_range[1]})` : '';
+                        return `<div style="color: var(--text-secondary);">\uD83D\uDC41\uFE0F ${this.escapeHtml(filePath)}${lineRange}</div>`;
+                    }
+
+                    case 'web_fetch': {
+                        const url = input.url || '';
+                        return `<div style="color: var(--text-secondary);">URL: <a href="${this.escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${this.escapeHtml(url)}</a></div>`;
+                    }
+
+                    default: {
+                        try {
+                            const json = JSON.stringify(input, null, 2);
+                            return `<pre><code>${this.escapeHtml(json)}</code></pre>`;
+                        } catch (e) {
+                            return '<div style="color: var(--text-tertiary);">[Unable to display tool input]</div>';
+                        }
+                    }
+                }
+            }
+
+            renderToolResultBlock(block) {
+                const blockId = 'result-' + Math.random().toString(36).substr(2, 9);
+                let contentHtml = '';
+
+                if (block.content) {
+                    if (typeof block.content === 'string') {
+                        contentHtml = `<pre style="white-space: pre-wrap; word-wrap: break-word; margin: 0;">${this.escapeHtml(block.content)}</pre>`;
+                    } else if (Array.isArray(block.content)) {
+                        contentHtml = block.content.map(item => {
+                            if (item.type === 'text') {
+                                return `<pre style="white-space: pre-wrap; word-wrap: break-word; margin: 0;">${this.escapeHtml(item.text || '')}</pre>`;
+                            } else if (item.type === 'image') {
+                                return this.renderImageBlock(item);
+                            }
+                            return '';
+                        }).join('');
+                    } else if (typeof block.content === 'object') {
+                        contentHtml = `<pre style="margin: 0;">${this.escapeHtml(JSON.stringify(block.content, null, 2))}</pre>`;
+                    }
+                }
+
+                if (!contentHtml) return '';
+
+                return `<div class="tool-result-container">
+                    <div class="tool-result-header" onclick="toggleToolBlock('${blockId}')">
+                        <div class="tool-result-header-left">
+                            <span>\uD83D\uDCCB</span>
+                            <span style="font-weight: 600; color: var(--text-secondary);">Tool Result</span>
+                        </div>
+                        <span class="tool-result-toggle" id="${blockId}-toggle">\u25BC</span>
+                    </div>
+                    <div class="tool-result-content" id="${blockId}">${contentHtml}</div>
+                </div>`;
+            }
+
+            renderThinkingBlock(block) {
+                const text = block.thinking || '';
+                if (!text.trim()) return '';
+
+                const estimatedTokens = Math.round(text.length / 4);
+                const blockId = 'thinking-' + Math.random().toString(36).substr(2, 9);
+
+                return `<div class="thinking-container">
+                    <div class="thinking-header" onclick="toggleToolBlock('${blockId}')">
+                        <div class="thinking-header-left">
+                            <span class="thinking-icon">\uD83D\uDCAD</span>
+                            <span class="thinking-label">Thinking</span>
+                            <span class="thinking-tokens">~${estimatedTokens.toLocaleString()} tokens</span>
+                        </div>
+                        <span class="thinking-toggle" id="${blockId}-toggle">\u25BC</span>
+                    </div>
+                    <div class="thinking-content" id="${blockId}">${this.escapeHtml(text)}</div>
+                </div>`;
+            }
+
+            renderImageBlock(block) {
+                if (!block.source || block.source.type !== 'base64' || !block.source.data) {
+                    return '<div style="color: var(--text-tertiary);">[Image: unsupported format]</div>';
+                }
+
+                const mediaType = block.source.media_type || 'image/png';
+                const dataUri = 'data:' + mediaType + ';base64,' + block.source.data;
+
+                return `<div class="image-block">
+                    <img src="${dataUri}" alt="Embedded image" loading="lazy" />
+                </div>`;
             }
 
             extractTextContent(content) {
@@ -2034,7 +2815,17 @@
                         return ''; // Skip empty text blocks
                     }
                 }
-                
+
+                // Handle thinking blocks (v2.0)
+                if (parsed.type === 'thinking') {
+                    return parsed.thinking || '';
+                }
+
+                // Handle image blocks (v2.0)
+                if (parsed.type === 'image') {
+                    return '[Image]';
+                }
+
                 // Handle other message types
                 if (parsed.type === 'tool_result' && parsed.content) {
                     // Recursively extract content from tool results
@@ -2110,9 +2901,12 @@
                 // Format each part
                 let formattedParts = parts.map(part => {
                     if (!part.content || !String(part.content).trim()) return '';
-                    
+
                     let formatted = this.escapeHtml(String(part.content));
-                    
+
+                    // Parse chat references AFTER HTML escaping but BEFORE markdown
+                    formatted = this.parseChatReferences(formatted);
+
                     if (part.isArtifact) {
                         const artifactId = 'artifact-' + Math.random().toString(36).substr(2, 9);
                         const header = `<div class="artifact-header" onclick="app.toggleArtifact('${artifactId}')">
@@ -2140,7 +2934,7 @@
                         // Regular content formatting
                         formatted = this.formatMarkdown(formatted);
                     }
-                    
+
                     return formatted;
                 }).filter(part => part && part.trim());
                 
@@ -2156,9 +2950,163 @@
                 return result;
             }
 
+            detectAndFormatXMLCode(content) {
+                if (!content || typeof content !== 'string') return content;
+
+                // Only detect SPECIFIC XAML/WPF UI control tags, not all XML
+                // This prevents false positives with tool parameters, style tags, etc.
+                const xamlControls = [
+                    'Window', 'Button', 'TextBox', 'Label', 'ComboBox', 'ListBox', 'CheckBox',
+                    'RadioButton', 'GroupBox', 'TabControl', 'Grid', 'StackPanel', 'WrapPanel',
+                    'DockPanel', 'Canvas', 'ScrollViewer', 'Border', 'Image', 'MenuItem',
+                    'ToolBar', 'StatusBar', 'DataGrid', 'TreeView', 'ListView'
+                ];
+
+                // Create regex pattern for XAML controls only
+                const xamlPattern = new RegExp(`^\\s*&lt;(${xamlControls.join('|')})[\\s>&]|^\\s*&lt;\\/(${xamlControls.join('|')})&gt;`, 'i');
+
+                const lines = content.split('\n');
+                let inCodeBlock = false;
+                let codeLines = [];
+                let resultLines = [];
+
+                lines.forEach((line, index) => {
+                    const trimmedLine = line.trim();
+
+                    // Check if line contains XAML UI controls (not generic XML)
+                    const isXAMLLine = xamlPattern.test(trimmedLine);
+
+                    if (isXAMLLine && !inCodeBlock) {
+                        // Start of XAML block
+                        inCodeBlock = true;
+                        codeLines = [line];
+                    } else if (isXAMLLine && inCodeBlock) {
+                        // Continue XAML block
+                        codeLines.push(line);
+                    } else if (!isXAMLLine && inCodeBlock && trimmedLine.length > 0) {
+                        // Check if it's an attribute line (indented and contains =)
+                        const isAttributeLine = /^\s+\w+\s*=/.test(line);
+                        if (isAttributeLine) {
+                            // Continue the block for attribute lines
+                            codeLines.push(line);
+                        } else {
+                            // End of XAML block
+                            if (codeLines.length > 0) {
+                                resultLines.push('```xml\n' + codeLines.join('\n') + '\n```');
+                                codeLines = [];
+                            }
+                            inCodeBlock = false;
+                            resultLines.push(line);
+                        }
+                    } else if (!inCodeBlock) {
+                        // Regular line
+                        resultLines.push(line);
+                    } else {
+                        // Empty line in code block - continue
+                        codeLines.push(line);
+                    }
+                });
+
+                // Handle case where file ends with code
+                if (inCodeBlock && codeLines.length > 0) {
+                    resultLines.push('```xml\n' + codeLines.join('\n') + '\n```');
+                }
+
+                return resultLines.join('\n');
+            }
+
+            cleanInternalTags(content) {
+                if (!content || typeof content !== 'string') return content;
+
+                // Remove Claude internal tool use tags (these are implementation details users don't need to see)
+                // Handle BOTH escaped and non-escaped versions to be thorough
+
+                // === ESCAPED VERSIONS (after HTML escaping) ===
+
+                // Remove entire tool blocks including content
+                content = content.replace(/&lt;tool\s+name=(?:&#39;|&quot;)[^&]*?(?:&#39;|&quot;)&gt;[\s\S]*?&lt;\/tool&gt;/gi, '');
+
+                // Remove standalone tool tags
+                content = content.replace(/&lt;tool\s+name=(?:&#39;|&quot;)[^&]*?(?:&#39;|&quot;)&gt;/gi, '');
+                content = content.replace(/&lt;\/tool&gt;/gi, '');
+
+                // Remove parameter blocks (including the content)
+                content = content.replace(/&lt;parameter\s+name=(?:&#39;|&quot;)description(?:&#39;|&quot;)&gt;[\s\S]*?&lt;\/parameter&gt;/gi, '');
+
+                // Remove parameter tags (keep other content)
+                content = content.replace(/&lt;parameter\s+name=(?:&#39;|&quot;)[^&]*?(?:&#39;|&quot;)&gt;/gi, '');
+                content = content.replace(/&lt;\/parameter&gt;/gi, '');
+
+                // Remove other internal tags
+                content = content.replace(/&lt;\/?(command|query|description|path|file_path|file_text)&gt;/gi, '');
+                content = content.replace(/&lt;\/chat&gt;/gi, '');
+
+                // === NON-ESCAPED VERSIONS (just in case) ===
+
+                // Remove tool blocks
+                content = content.replace(/<tool\s+name=["'][^"']*["']>[\s\S]*?<\/tool>/gi, '');
+
+                // Remove standalone tool tags
+                content = content.replace(/<tool\s+name=["'][^"']*["']>/gi, '');
+                content = content.replace(/<\/tool>/gi, '');
+
+                // Remove parameter blocks
+                content = content.replace(/<parameter\s+name=["']description["']>[\s\S]*?<\/parameter>/gi, '');
+
+                // Remove parameter tags
+                content = content.replace(/<parameter\s+name=["'][^"']*["']>/gi, '');
+                content = content.replace(/<\/parameter>/gi, '');
+
+                // Remove other internal tags
+                content = content.replace(/<\/?(command|query|description|path|file_path|file_text)>/gi, '');
+                content = content.replace(/<\/chat>/gi, '');
+
+                // Clean up multiple consecutive newlines and extra whitespace
+                content = content.replace(/(\n\s*){3,}/g, '\n\n');
+                content = content.replace(/^\s+$/gm, ''); // Remove lines with only whitespace
+
+                return content;
+            }
+
+            parseChatReferences(content) {
+                if (!content || typeof content !== 'string') return content;
+
+                // First, clean up all internal Claude tags
+                content = this.cleanInternalTags(content);
+
+                // Parse <chat url='...' updated_at=...>Title format (HTML-escaped)
+                // Match: &lt;chat url=&#39;...&#39; updated_at=...&gt;Title
+                content = content.replace(
+                    /&lt;chat\s+url=(?:&#39;|&quot;|')([^&#'"]+)(?:&#39;|&quot;|')(?:\s+updated_at=(?:&#39;|&quot;|')?([^&#'">&\s]+)(?:&#39;|&quot;|')?)?&gt;([^\n<&]+)/gi,
+                    (match, url, updatedAt, title) => {
+                        const dateStr = updatedAt ? ` (${this.formatDate(new Date(updatedAt))})` : '';
+                        return `🔗 **Referenced Conversation**: [${title.trim()}](${url})${dateStr}`;
+                    }
+                );
+
+                // Parse <chat_conversation>Title: ... format (HTML-escaped)
+                content = content.replace(
+                    /&lt;chat_conversation&gt;\s*Title:\s*([^\n<&]+)/gi,
+                    (match, title) => {
+                        return `💬 **Referenced Conversation**: ${title.trim()}`;
+                    }
+                );
+
+                // Parse plain <chat_conversation> (HTML-escaped)
+                content = content.replace(
+                    /&lt;chat_conversation&gt;/gi,
+                    '💬 **Referenced Conversation**'
+                );
+
+                // Detect and format XML/XAML code blocks
+                content = this.detectAndFormatXMLCode(content);
+
+                return content;
+            }
+
             formatParsedContent(parsed) {
                 if (!parsed) return { content: '', isArtifact: false, artifactType: '', artifactTitle: '' };
-                
+
                 // Handle tool use with artifacts
                 if (parsed.type === 'tool_use' && parsed.name === 'artifacts' && parsed.input) {
                     const input = parsed.input;
@@ -2301,10 +3249,13 @@
                 // Bold and italic
                 formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                
+
+                // Links - handle markdown links [text](url)
+                formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
                 // Line breaks
                 formatted = formatted.replace(/\n/g, '<br>');
-                
+
                 return formatted;
             }
 
@@ -2647,6 +3598,81 @@
                 document.getElementById('titleLength').value = 50;
                 document.getElementById('jsonIndent').value = 2;
                 document.getElementById('includeTimestamp').checked = false;
+            }
+
+            // Keyboard shortcuts methods
+            openShortcuts() {
+                document.getElementById('shortcutsModal').classList.add('active');
+            }
+
+            closeShortcuts() {
+                document.getElementById('shortcutsModal').classList.remove('active');
+            }
+
+            handleKeyboardShortcuts(event) {
+                // Ctrl/Cmd + K: Focus search
+                if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+                    event.preventDefault();
+                    const searchBox = document.getElementById('searchBox');
+                    if (searchBox) {
+                        searchBox.focus();
+                        searchBox.select();
+                    }
+                    return;
+                }
+
+                // ?: Show shortcuts help
+                if (event.key === '?' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+                    // Only if not typing in an input field
+                    if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+                        event.preventDefault();
+                        this.openShortcuts();
+                    }
+                    return;
+                }
+
+                // Escape: Close any open modal
+                if (event.key === 'Escape') {
+                    const settingsModal = document.getElementById('settingsModal');
+                    const shortcutsModal = document.getElementById('shortcutsModal');
+                    if (settingsModal.classList.contains('active')) {
+                        this.closeSettings();
+                    } else if (shortcutsModal.classList.contains('active')) {
+                        this.closeShortcuts();
+                    }
+                    return;
+                }
+
+                // Arrow keys for pagination (only if not in an input field)
+                if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA' && event.target.tagName !== 'SELECT') {
+                    if (event.key === 'ArrowRight') {
+                        event.preventDefault();
+                        // Try both pagination controls
+                        const nextBtn = document.getElementById('nextPage');
+                        const nextBtn2 = document.getElementById('nextPage2');
+
+                        if (nextBtn && !nextBtn.disabled && window.getComputedStyle(nextBtn.parentElement).display !== 'none') {
+                            this.goToPage(this.currentPage + 1);
+                        } else if (nextBtn2 && !nextBtn2.disabled && window.getComputedStyle(nextBtn2.parentElement).display !== 'none') {
+                            this.goToPage(this.currentPage + 1);
+                        }
+                        return;
+                    }
+
+                    if (event.key === 'ArrowLeft') {
+                        event.preventDefault();
+                        // Try both pagination controls
+                        const prevBtn = document.getElementById('prevPage');
+                        const prevBtn2 = document.getElementById('prevPage2');
+
+                        if (prevBtn && !prevBtn.disabled && window.getComputedStyle(prevBtn.parentElement).display !== 'none') {
+                            this.goToPage(this.currentPage - 1);
+                        } else if (prevBtn2 && !prevBtn2.disabled && window.getComputedStyle(prevBtn2.parentElement).display !== 'none') {
+                            this.goToPage(this.currentPage - 1);
+                        }
+                        return;
+                    }
+                }
             }
 
             // Progress indicator methods

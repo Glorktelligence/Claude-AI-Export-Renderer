@@ -5,7 +5,7 @@ A web-based tool for viewing and exploring Claude conversation exports with sear
 
 ## Recent Updates
 
-**Version 1.0.2** - Major update adding comprehensive export functionality with customizable settings, selection tools, and collapsible code sections. Export filtered conversations, selected conversations, or individual conversations with full control over file naming and formatting. See [CHANGELOG.md](https://github.com/Glorktelligence/Claude-AI-Export-Renderer/blob/main/CHANGELOG.md) for full version history.
+**Version 2.0.0** - Content block rendering overhaul. The renderer now understands all Claude message content types including tool use blocks (with terminal styling for bash, diff rendering for file edits, query display for searches), thinking/reasoning blocks (collapsed with token estimates), inline image rendering, and tool result pairing. See [CHANGELOG.md](https://github.com/Glorktelligence/Claude-AI-Export-Renderer/blob/main/CHANGELOG.md) for full version history.
 
 ## Legal Disclaimer
 
@@ -22,7 +22,11 @@ If you are a representative of Anthropic PBC and have concerns about this projec
 * **Comprehensive Export System** : Export filtered, selected, or individual conversations with customizable settings
 * **Selection Tools** : Bulk selection with checkboxes and selection helpers
 * **Export Settings** : Customize file naming, date formats, JSON indentation, and more
-* **Collapsible Code Sections** : Artifacts and code blocks collapse by default for cleaner viewing
+* **Content Block Rendering** : Rich display for all Claude message types (tool use, thinking, images, tool results)
+* **Tool Use Visualization** : Terminal-style bash blocks, diff rendering for file edits, query display for searches, and 20+ tool icon mappings
+* **Thinking Blocks** : Collapsed chain-of-thought display with estimated token counts
+* **Image Support** : Inline base64 image rendering with lazy loading
+* **Collapsible Code Sections** : Artifacts, code blocks, tool blocks, and thinking blocks collapse by default
 * **Artifact Rendering** : Properly displays code, markdown, and generated content
 * **Pagination** : Handles large exports efficiently (tested with 32MB+ files)
 * **Performance Optimized** : Won't crash your browser with large conversation histories

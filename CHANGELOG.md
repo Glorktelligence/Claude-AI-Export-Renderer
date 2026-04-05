@@ -5,6 +5,45 @@ All notable changes to the Claude AI Export Renderer will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-04-05
+
+### Added
+
+- **Content Block Rendering System**: Complete overhaul of how Claude message content is displayed
+  - Messages with typed content arrays (text, tool_use, tool_result, thinking, image) are now rendered with dedicated block renderers instead of plain text
+  - New `renderMessageContent()` dispatcher detects string vs array content and routes to the appropriate renderer
+  - New `renderContentBlock()` switch handles all known block types with specialized display
+- **Tool Use Rendering**: Rich visual display for all Claude tool invocations
+  - Icon and display name mapping for 20 known tools (web_search, bash_tool, str_replace, etc.)
+  - Collapsible tool blocks with descriptive headers (collapsed by default)
+  - Tool-specific input rendering:
+    - `web_search`: Query display
+    - `bash_tool`: Terminal-style dark block with green text and blue `$` prompt
+    - `str_replace`: Diff-style display with red (removed) and green (added) lines
+    - `create_file`: Filename header with collapsible code content
+    - `view`: File path display with optional line range
+    - `web_fetch`: Clickable URL link
+    - Generic fallback: formatted JSON display
+- **Tool Result Rendering**: Collapsible result blocks paired with their tool_use by `tool_use_id`
+- **Thinking Block Rendering**: Extended thinking / chain-of-thought blocks
+  - Collapsed by default with estimated token count (~chars/4) in header
+  - Italic styling to distinguish from regular content
+- **Image Block Rendering**: Inline base64 image display with lazy loading
+- **Global Toggle Function**: `toggleToolBlock()` for all collapsible content blocks
+- **Comprehensive CSS**: New styles for `.tool-use-container`, `.tool-result-container`, `.thinking-container`, `.terminal-block`, `.diff-block`, `.image-block` with light theme overrides
+
+### Improved
+
+- **Search Extraction**: `extractTextContent` now handles thinking blocks and image placeholders for full-text search across all content types
+- **Artifact Preservation**: Existing artifact rendering (tool_use with name='artifacts') is preserved through dedicated `renderArtifactBlock()` method
+
+### Technical Details
+
+- Single-file architecture maintained (~3,500+ lines)
+- All new rendering uses existing CSS variable system for theme compatibility
+- Content block rendering coexists with legacy string content formatting
+- No external dependencies added
+
 ## [1.0.2] - 2025-10-26
 
 ### Added

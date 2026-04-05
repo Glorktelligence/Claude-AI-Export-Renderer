@@ -15,7 +15,7 @@ The application uses a monolithic architecture where everything (HTML structure,
 
 ### Core Components
 
-1. **ConversationRenderer Class** (main app controller)
+1. **ClaudeExportRenderer Class** (main app controller)
    - State management: tracks conversations, filtered results, pagination state
    - File processing: handles JSON parsing and format normalization
    - Rendering pipeline: converts data to DOM elements
@@ -23,12 +23,23 @@ The application uses a monolithic architecture where everything (HTML structure,
 
 2. **Data Normalization Layer**
    - `processConversations()`: Handles multiple export format variations
-   - `extractTextContent()`: Recursively extracts text from nested content structures
-   - `formatMessageContent()`: Transforms content into HTML with artifact support
+   - `extractTextContent()`: Recursively extracts text from nested content structures (including thinking blocks, tool inputs, images)
+   - `formatMessageContent()`: Transforms string content into HTML with artifact support
    - Filters out corrupted/empty conversations automatically
 
-3. **Artifact Rendering System**
-   - Detects tool use patterns in message content
+3. **Content Block Rendering System (v2.0)**
+   - `renderMessageContent()`: Entry point — dispatches string content to `formatMessageContent()`, array content to block-level renderers
+   - `renderContentBlock()`: Switch on block type (text, tool_use, tool_result, thinking, image)
+   - `renderToolUseBlock()`: Collapsible tool blocks with TOOL_ICONS/TOOL_NAMES maps (20 known tools)
+   - `renderToolInput()`: Tool-specific display — terminal style for bash, diff for str_replace, query for web_search, URL link for web_fetch, file path for view/create_file, JSON fallback for unknown tools
+   - `renderToolResultBlock()`: Collapsible result blocks paired with tool_use by `tool_use_id`
+   - `renderThinkingBlock()`: Collapsed by default, shows ~token estimate in header
+   - `renderImageBlock()`: Inline base64 data URI with lazy loading
+   - `renderArtifactBlock()`: Preserves legacy artifact rendering for tool_use with name='artifacts'
+   - `toggleToolBlock()`: Global function for all collapsible v2.0 blocks
+
+4. **Artifact Rendering System (legacy)**
+   - Detects tool use patterns in string message content
    - Special rendering for code blocks, markdown, HTML artifacts
    - Visual indicators (icons, headers, syntax highlighting)
    - Located in `formatParsedContent()` and `formatMessageContent()`
@@ -64,14 +75,17 @@ See `processConversations()` at line ~919 for normalization logic.
 - All filtering happens client-side in `applyFilters()` method
 
 ### Message Content Types
-The renderer handles complex nested content structures:
-- Plain text strings
-- Arrays of mixed content (text + tool use)
-- Tool use objects with artifacts
-- Markdown and HTML content
-- Tool results
+Messages have a `content` field that is EITHER a string or an array of typed objects.
+The renderer handles both through `renderMessageContent()`:
+- **Strings**: Delegated to `formatMessageContent()` (legacy path with artifact/markdown support)
+- **Arrays**: Each block dispatched to `renderContentBlock()` by type:
+  - `text` — rendered with markdown formatting
+  - `tool_use` — collapsible block with tool-specific display (terminal, diff, query, etc.)
+  - `tool_result` — collapsible result block, paired with matching tool_use when in same array
+  - `thinking` — collapsed chain-of-thought with token estimate
+  - `image` — inline base64 image with lazy loading
 
-Content extraction logic in `extractTextContent()` (line ~1288) and `extractFromParsedContent()` (line ~1312).
+See `.claude/skills/renderer/SKILL.md` for the full content block type reference and CSS patterns.
 
 ## Development Workflow
 
@@ -128,9 +142,17 @@ There are no source files to compile. The project structure is:
 - `SECURITY.md` - Security policy and vulnerability reporting
 - `LICENSE` - MIT license with trademark acknowledgments
 - `VERSION` - Current version number
+- `.claude/skills/` - Architecture skill documentation for Claude Code
+
+## Skills Bookshelf
+
+Architecture and domain knowledge is documented in `.claude/skills/`:
+- `.claude/skills/renderer/SKILL.md` — Content block types, tool icon/name maps, CSS patterns, collapsible block patterns
+- `.claude/skills/testing/SKILL.md` — Testing guidance
 
 ## Version History
 
+- **v2.0.0**: Content block rendering — tool use, thinking, terminal, diff, images
 - **v1.0.1**: Added multilingual support (EN, DE, ES, FR) with auto-detection
 - **v1.0.0**: Initial release with search, filtering, pagination, artifact rendering
 
