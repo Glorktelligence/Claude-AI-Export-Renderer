@@ -5,7 +5,7 @@ A web-based tool for viewing and exploring Claude conversation exports with sear
 
 ## Recent Updates
 
-**Version 2.0.0** - Content block rendering overhaul. The renderer now understands all Claude message content types including tool use blocks (with terminal styling for bash, diff rendering for file edits, query display for searches), thinking/reasoning blocks (collapsed with token estimates), inline image rendering, and tool result pairing. See [CHANGELOG.md](https://github.com/Glorktelligence/Claude-AI-Export-Renderer/blob/main/CHANGELOG.md) for full version history.
+**Version 2.2.0** - Polish release: proper markdown rendering (tables, lists, blockquotes), language-specific code block styling with copy buttons, detailed statistics dashboard, keyboard navigation (j/k, /, Home/End), markdown export, print-friendly CSS, word counts, and localStorage safety for file:// protocol. See [CHANGELOG.md](https://github.com/Glorktelligence/Claude-AI-Export-Renderer/blob/main/CHANGELOG.md) for full version history.
 
 ## Legal Disclaimer
 
@@ -26,10 +26,17 @@ If you are a representative of Anthropic PBC and have concerns about this projec
 * **Tool Use Visualization** : Terminal-style bash blocks, diff rendering for file edits, query display for searches, and 20+ tool icon mappings
 * **Thinking Blocks** : Collapsed chain-of-thought display with estimated token counts
 * **Image Support** : Inline base64 image rendering with lazy loading
+* **Markdown Rendering** : Tables, lists, blockquotes, horizontal rules, strikethrough, and proper inline formatting
+* **Language-Styled Code Blocks** : Color-tinted headers for 20+ languages with one-click copy to clipboard
+* **Statistics Dashboard** : Detailed breakdown of messages, content types, and most-used tools
+* **Keyboard Navigation** : Vim-style j/k, /, Home/End, Enter, Escape shortcuts
+* **Export to Markdown** : Download conversations as clean .md files alongside JSON export
+* **Smart Loading** : IndexedDB streaming for 160MB+ exports without browser crashes
+* **Print-Friendly** : Ctrl+P prints expanded conversations cleanly
 * **Collapsible Code Sections** : Artifacts, code blocks, tool blocks, and thinking blocks collapse by default
 * **Artifact Rendering** : Properly displays code, markdown, and generated content
-* **Pagination** : Handles large exports efficiently (tested with 32MB+ files)
-* **Performance Optimized** : Won't crash your browser with large conversation histories
+* **Pagination** : Handles large exports efficiently (tested with 160MB+ files)
+* **Dark/Light Theme** : Toggle with persistent preference (☀️/🌙)
 * **Responsive Design** : Works on desktop and mobile devices
 * **Multilingual Support** : Complete interface translation with automatic language detection
 

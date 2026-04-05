@@ -5,6 +5,63 @@ All notable changes to the Claude AI Export Renderer will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-04-05
+
+### Added
+
+- **Enhanced Markdown Rendering**: Full inline markdown parser replacing basic text rendering
+  - Tables (`| col | col |` syntax) with dark-themed styling
+  - Ordered and unordered lists (`1.`, `-`, `*`)
+  - Blockquotes (`>`) with accent-colored left border
+  - Horizontal rules (`---`, `***`)
+  - Strikethrough (`~~text~~`)
+  - Improved heading, bold, italic, link, and inline code rendering
+- **Language-Specific Code Block Styling**: Color-tinted headers for 20+ languages
+  - Python (blue), JavaScript (yellow), TypeScript (blue), JSON (green), HTML (orange), CSS (purple), SQL (cyan), YAML (grey), Rust (red), Go (cyan), and more
+  - Diff syntax coloring (`+` green, `-` red, `@` cyan)
+  - Bash/shell reuses existing terminal-block dark styling
+- **Copy Button on Code Blocks**: One-click clipboard copy with "Copied!" feedback
+  - Appears on every code block, tool input, and terminal block
+  - `navigator.clipboard` API with `execCommand('copy')` fallback for older browsers
+- **Statistics Dashboard**: Collapsible detailed statistics panel
+  - Human/Assistant message breakdown
+  - Longest conversation
+  - Content type counts (tool use blocks, thinking blocks, code blocks, images)
+  - Top 6 most-used tools with icons
+  - Computed during import for both in-memory and IndexedDB modes
+- **Keyboard Navigation**: Comprehensive keyboard shortcuts
+  - `/` to focus search, `j`/`k` for next/prev conversation (vim-style)
+  - `Home`/`End` for first/last page
+  - `Enter` to toggle focused conversation
+  - `Escape` to close modals or collapse expanded conversations
+  - Updated shortcuts help modal with all new bindings
+- **Print-Friendly CSS**: `@media print` styles for clean Ctrl+P output
+  - Hides controls, pagination, export buttons, and modals
+  - Forces expanded conversation content, white background
+  - Avoids page breaks inside conversations
+- **Export to Markdown**: New 📝 button on conversation headers
+  - Converts conversation to markdown with headings, tool blocks, code, thinking summaries
+  - Downloads as `.md` file using same Blob mechanism as JSON export
+- **Conversation Word Count**: Estimated word count shown in conversation list headers
+  - Computed during normalization for both in-memory and IndexedDB modes
+  - Displayed as "~124,500 words" next to message count
+
+### Improved
+
+- **Theme Toggle**: Button now shows ☀️/🌙 icons, all hardcoded CSS colors replaced with CSS variables
+  - Added `--btn-blue-bg`, `--btn-blue-hover`, `--warning-text`, `--disabled-bg`, `--disabled-text` variables
+  - Both dark and light theme definitions updated
+- **localStorage Safety**: All localStorage calls wrapped in `safeStorage` with try/catch and in-memory fallback
+  - Shows subtle notice when storage unavailable (e.g., `file://` protocol)
+  - Settings, theme, and language preferences gracefully degrade
+
+### Technical Details
+
+- Single-file architecture maintained (~4,700+ lines)
+- Markdown parser handles tables, lists, and blockquotes without external libraries
+- Stats computed during initial processing (streaming accumulator for IDB mode)
+- No external dependencies added
+
 ## [2.1.0] - 2026-04-05
 
 ### Added

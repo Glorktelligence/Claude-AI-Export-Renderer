@@ -26,6 +26,11 @@
             --error-border: #4a2a2a;
             --highlight-bg: #ff6b35;
             --highlight-text: #000;
+            --btn-blue-bg: #2a5a8a;
+            --btn-blue-hover: #3a6a9a;
+            --warning-text: #ffaa00;
+            --disabled-bg: #1a1a1a;
+            --disabled-text: #666;
         }
 
         body.light-theme {
@@ -49,6 +54,11 @@
             --error-border: #fcc;
             --highlight-bg: #ff6b35;
             --highlight-text: #fff;
+            --btn-blue-bg: #2563eb;
+            --btn-blue-hover: #1d4ed8;
+            --warning-text: #b45309;
+            --disabled-bg: #e5e5e5;
+            --disabled-text: #999;
         }
 
         * {
@@ -231,8 +241,13 @@
             transition: border-color 0.3s;
         }
 
-        .conversation-item:hover {
+        .conversation-item:hover,
+        .conversation-item.focused {
             border-color: var(--border-secondary);
+        }
+        .conversation-item.focused {
+            outline: 2px solid var(--accent-blue);
+            outline-offset: -2px;
         }
 
         .conversation-header {
@@ -350,8 +365,8 @@
         }
 
         .export-single-btn:hover {
-            background: #2a5a8a;
-            color: #fff;
+            background: var(--btn-blue-bg);
+            color: var(--bg-primary);
         }
 
         .loading {
@@ -433,11 +448,11 @@
         }
 
         body.light-theme .message-content a {
-            color: #2563eb;
+            color: var(--accent-blue);
         }
 
         body.light-theme .message-content a:hover {
-            border-bottom-color: #2563eb;
+            border-bottom-color: var(--accent-blue);
         }
 
         /* Artifact styling */
@@ -570,7 +585,7 @@
         }
 
         .code-block-toggle {
-            color: #ff6b35;
+            color: var(--accent-primary);
             font-size: 12px;
             transition: transform 0.3s;
         }
@@ -595,7 +610,7 @@
             margin: 0;
             border: none;
             border-radius: 0;
-            border-top: 1px solid #333;
+            border-top: 1px solid var(--border-primary);
         }
 
         /* Settings Modal */
@@ -883,7 +898,7 @@
 
         .large-file-warning {
             background: var(--error-bg);
-            color: #ffaa00;
+            color: var(--warning-text);
             padding: 15px;
             border-radius: 8px;
             border: 1px solid var(--error-border);
@@ -897,7 +912,7 @@
         }
 
         .selection-toggle-btn {
-            background: #2a5a8a;
+            background: var(--btn-blue-bg);
             color: white;
             padding: 10px 20px;
             border: none;
@@ -908,15 +923,15 @@
         }
 
         .selection-toggle-btn:hover {
-            background: #3a6a9a;
+            background: var(--btn-blue-hover);
         }
 
         .selection-toggle-btn.active {
-            background: #ff6b35;
+            background: var(--accent-primary);
         }
 
         .selection-toggle-btn.active:hover {
-            background: #e55a2e;
+            background: var(--accent-hover);
         }
 
         .bulk-actions-bar {
@@ -1000,7 +1015,7 @@
         }
 
         .export-btn {
-            background: #2a5a8a;
+            background: var(--btn-blue-bg);
             color: white;
             padding: 10px 20px;
             border: none;
@@ -1011,12 +1026,12 @@
         }
 
         .export-btn:hover {
-            background: #3a6a9a;
+            background: var(--btn-blue-hover);
         }
 
         .export-btn:disabled {
-            background: #1a1a1a;
-            color: #666;
+            background: var(--disabled-bg);
+            color: var(--disabled-text);
             cursor: not-allowed;
         }
 
@@ -1328,6 +1343,155 @@
             font-size: 13px;
             margin-top: 5px;
         }
+
+        /* Phase 3: Markdown elements */
+        .message-content { white-space: normal; word-wrap: break-word; }
+        .message-content blockquote {
+            border-left: 3px solid var(--accent-primary);
+            padding: 8px 16px;
+            margin: 10px 0;
+            background: var(--bg-tertiary);
+            border-radius: 0 6px 6px 0;
+            color: var(--text-secondary);
+        }
+        .message-content table {
+            border-collapse: collapse;
+            margin: 10px 0;
+            width: 100%;
+            font-size: 14px;
+        }
+        .message-content th, .message-content td {
+            border: 1px solid var(--border-primary);
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .message-content th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+        }
+        .message-content hr {
+            border: none;
+            border-top: 1px solid var(--border-primary);
+            margin: 15px 0;
+        }
+        .message-content del { opacity: 0.6; }
+        .message-content ul, .message-content ol {
+            margin: 8px 0;
+            padding-left: 24px;
+        }
+        .message-content li { margin: 4px 0; line-height: 1.5; }
+        .message-content h1, .message-content h2, .message-content h3 {
+            margin: 15px 0 8px 0;
+            line-height: 1.3;
+        }
+        .message-content h1 { font-size: 1.4em; }
+        .message-content h2 { font-size: 1.2em; }
+        .message-content h3 { font-size: 1.1em; }
+
+        /* Code block language headers */
+        .code-lang-label {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        /* Copy button */
+        .copy-btn {
+            background: none;
+            border: 1px solid var(--border-secondary);
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .copy-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+        }
+
+        /* Detailed statistics */
+        .detailed-stats-header {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-primary);
+        }
+        .detailed-stats-header:hover { color: var(--text-primary); }
+        .detailed-stats-body {
+            display: none;
+            margin-top: 12px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 14px;
+        }
+        .detailed-stats-body.expanded { display: grid; }
+        .stats-section {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
+        }
+        .stats-section h4 {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            color: var(--text-secondary);
+        }
+        .stat-line .stat-val {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        /* Storage notice */
+        .storage-notice {
+            background: var(--bg-tertiary);
+            color: var(--text-tertiary);
+            padding: 6px 16px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .detailed-stats-body.expanded { grid-template-columns: 1fr; }
+        }
+
+        /* Print CSS */
+        @media print {
+            .header, .controls, .pagination, .footer,
+            .export-buttons, .selection-controls, .bulk-actions-bar,
+            .large-file-warning, .modal-overlay, .progress-overlay,
+            .export-single-btn, .expand-toggle, .conversation-checkbox,
+            .copy-btn, .storage-notice { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .container { max-width: 100%; }
+            .conversation-item { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc !important; }
+            .conversation-content { display: block !important; }
+            .message { border-left-width: 2px !important; }
+            .code-block-content, .artifact-content,
+            .tool-use-content, .tool-result-content,
+            .thinking-content { display: block !important; max-height: none !important; }
+            a { color: inherit !important; text-decoration: underline !important; }
+            pre { border: 1px solid #ccc !important; white-space: pre-wrap !important; }
+        }
     </style>
 </head>
 <body>
@@ -1342,7 +1506,7 @@
                         <input type="file" id="fileInput" class="file-input" accept=".json" />
                         <button class="file-input-button" data-i18n="choose-file">Choose Claude Export File</button>
                     </div>
-                    <div id="fileName" style="margin-top: 10px; color: #b0b0b0;"></div>
+                    <div id="fileName" style="margin-top: 10px; color: var(--text-secondary);"></div>
                 </div>
                 
                 <div class="language-selector" style="display: flex; align-items: center;">
@@ -1352,7 +1516,7 @@
                         <option value="es">Español</option>
                         <option value="fr">Français</option>
                     </select>
-                    <button id="themeToggle" class="theme-toggle" title="Toggle Theme">🌓</button>
+                    <button id="themeToggle" class="theme-toggle" title="Toggle Theme">☀️</button>
                     <button id="shortcutsBtn" class="settings-btn" title="Keyboard Shortcuts (?)">⌨️</button>
                     <button id="settingsBtn" class="settings-btn" title="Export Settings">⚙️</button>
                 </div>
@@ -1416,26 +1580,34 @@
                     <button class="modal-close" id="closeShortcuts">×</button>
                 </div>
 
-                <div style="display: grid; gap: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
-                        <span data-i18n="shortcut-search">Focus Search</span>
-                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">Ctrl+K</kbd>
+                <div style="display: grid; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span>Focus Search</span>
+                        <span><kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">Ctrl+K</kbd> or <kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">/</kbd></span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
-                        <span data-i18n="shortcut-help">Show Shortcuts</span>
-                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">?</kbd>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span>Navigate Pages</span>
+                        <span><kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">\u2190</kbd> <kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">\u2192</kbd></span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
-                        <span data-i18n="shortcut-escape">Close Modals</span>
-                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">Esc</kbd>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span>First / Last Page</span>
+                        <span><kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">Home</kbd> <kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">End</kbd></span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
-                        <span data-i18n="shortcut-next-page">Next Page</span>
-                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">→</kbd>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span>Next / Prev Conversation</span>
+                        <span><kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">j</kbd> <kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">k</kbd></span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-tertiary); border-radius: 6px;">
-                        <span data-i18n="shortcut-prev-page">Previous Page</span>
-                        <kbd style="background: var(--bg-code); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace;">←</kbd>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span>Toggle Conversation</span>
+                        <kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">Enter</kbd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span>Close / Collapse</span>
+                        <kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">Esc</kbd>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--bg-tertiary); border-radius: 6px;">
+                        <span>Show Shortcuts</span>
+                        <kbd style="background: var(--bg-code); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-primary); font-family: monospace; font-size: 12px;">?</kbd>
                     </div>
                 </div>
 
@@ -1523,6 +1695,10 @@
                     <div class="stat-label" data-i18n="avg-messages">Avg Messages/Chat</div>
                 </div>
             </div>
+            <div class="detailed-stats-header" id="detailedStatsHeader" style="display: none;" onclick="app.toggleDetailedStats()">
+                <span>📊</span> <strong>Detailed Statistics</strong> <span id="detailedStatsToggle">▼</span>
+            </div>
+            <div class="detailed-stats-body" id="detailedStatsBody"></div>
         </div>
 
         <!-- Export Buttons -->
@@ -1916,12 +2092,12 @@
             }
 
             // Store language preference
-            localStorage.setItem('claude-renderer-language', lang);
+            safeStorage.setItem('claude-renderer-language', lang);
         }
 
         function detectAndSetLanguage() {
             // Check stored preference first
-            let savedLang = localStorage.getItem('claude-renderer-language');
+            let savedLang = safeStorage.getItem('claude-renderer-language');
             if (savedLang && translations[savedLang]) {
                 document.getElementById('languageSelect').value = savedLang;
                 setLanguage(savedLang);
@@ -1938,6 +2114,78 @@
 
             document.getElementById('languageSelect').value = detectedLang;
             setLanguage(detectedLang);
+        }
+
+        // Safe localStorage wrapper (v2.2) — handles file:// protocol
+        const safeStorage = {
+            _fb: {},
+            _ok: null,
+            _check() {
+                if (this._ok !== null) return this._ok;
+                try { const t = '__t__'; localStorage.setItem(t, t); localStorage.removeItem(t); this._ok = true; }
+                catch (e) { this._ok = false; }
+                return this._ok;
+            },
+            getItem(k) {
+                if (this._check()) { try { return localStorage.getItem(k); } catch(e) {} }
+                return this._fb[k] || null;
+            },
+            setItem(k, v) {
+                if (this._check()) { try { localStorage.setItem(k, v); return; } catch(e) {} }
+                this._fb[k] = v;
+            }
+        };
+
+        // Language-specific code block styles (v2.2)
+        const LANG_STYLES = {
+            'bash': { label: 'Bash', color: '#4ade80', bg: '#0a2a0a' },
+            'sh': { label: 'Shell', color: '#4ade80', bg: '#0a2a0a' },
+            'shell': { label: 'Shell', color: '#4ade80', bg: '#0a2a0a' },
+            'python': { label: 'Python', color: '#6ea8fe', bg: '#0a1a2a' },
+            'py': { label: 'Python', color: '#6ea8fe', bg: '#0a1a2a' },
+            'javascript': { label: 'JavaScript', color: '#ffd700', bg: '#2a2a0a' },
+            'js': { label: 'JavaScript', color: '#ffd700', bg: '#2a2a0a' },
+            'typescript': { label: 'TypeScript', color: '#6ea8fe', bg: '#0a1a2a' },
+            'ts': { label: 'TypeScript', color: '#6ea8fe', bg: '#0a1a2a' },
+            'json': { label: 'JSON', color: '#88ff88', bg: '#0a2a0a' },
+            'html': { label: 'HTML', color: '#ff8c00', bg: '#2a1a0a' },
+            'css': { label: 'CSS', color: '#c084fc', bg: '#1a0a2a' },
+            'sql': { label: 'SQL', color: '#67e8f9', bg: '#0a2a2a' },
+            'yaml': { label: 'YAML', color: '#9ca3af', bg: '#1a1a1a' },
+            'yml': { label: 'YAML', color: '#9ca3af', bg: '#1a1a1a' },
+            'markdown': { label: 'Markdown', color: '#9ca3af', bg: '#1a1a1a' },
+            'md': { label: 'Markdown', color: '#9ca3af', bg: '#1a1a1a' },
+            'diff': { label: 'Diff', color: '#ff8888', bg: '#1a0a0a' },
+            'xml': { label: 'XML', color: '#ff8c00', bg: '#2a1a0a' },
+            'java': { label: 'Java', color: '#f89820', bg: '#2a1a0a' },
+            'c': { label: 'C', color: '#6ea8fe', bg: '#0a1a2a' },
+            'cpp': { label: 'C++', color: '#6ea8fe', bg: '#0a1a2a' },
+            'rust': { label: 'Rust', color: '#ff8888', bg: '#2a0a0a' },
+            'go': { label: 'Go', color: '#67e8f9', bg: '#0a2a2a' },
+            'ruby': { label: 'Ruby', color: '#ff6b6b', bg: '#2a0a0a' },
+            'php': { label: 'PHP', color: '#c084fc', bg: '#1a0a2a' }
+        };
+
+        // Copy code block to clipboard (v2.2)
+        function copyCodeBlock(blockId) {
+            const el = document.getElementById(blockId);
+            if (!el) return;
+            const code = el.querySelector('code');
+            const text = code ? code.textContent : el.textContent;
+            const btn = document.querySelector('[data-copy-target="' + blockId + '"]');
+            const done = () => { if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = '\uD83D\uDCCB Copy'; }, 1500); } };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(done).catch(() => { fallbackCopy(text); done(); });
+            } else {
+                fallbackCopy(text); done();
+            }
+        }
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); } catch(e) {}
+            document.body.removeChild(ta);
         }
 
         // Tool icon and display name maps (v2.0)
@@ -2253,6 +2501,7 @@
                 this.totalConversationCount = 0;
                 this.idbHeaders = [];
                 this.idbSearchResults = null;
+                this.detailedStats = null;
                 // Selection mode state
                 this.selectionMode = false;
                 this.selectedConversations = new Set();
@@ -2264,16 +2513,25 @@
             }
 
             loadTheme() {
-                const savedTheme = localStorage.getItem('claude-export-theme');
+                const savedTheme = safeStorage.getItem('claude-export-theme');
                 if (savedTheme === 'light') {
                     document.body.classList.add('light-theme');
+                    document.getElementById('themeToggle').textContent = '\uD83C\uDF19';
+                }
+                // Show storage notice if localStorage unavailable
+                if (!safeStorage._check()) {
+                    const notice = document.createElement('div');
+                    notice.className = 'storage-notice';
+                    notice.textContent = "Settings won't persist when opened from file:// \u2014 use a local server for persistence.";
+                    document.body.prepend(notice);
                 }
             }
 
             toggleTheme() {
                 document.body.classList.toggle('light-theme');
                 const isLight = document.body.classList.contains('light-theme');
-                localStorage.setItem('claude-export-theme', isLight ? 'light' : 'dark');
+                safeStorage.setItem('claude-export-theme', isLight ? 'light' : 'dark');
+                document.getElementById('themeToggle').textContent = isLight ? '\uD83C\uDF19' : '\u2600\uFE0F';
             }
 
             initializeEventListeners() {
@@ -2400,6 +2658,12 @@
                 const startTime = Date.now();
                 let messageCount = 0;
                 let count = 0;
+                const statsAcc = {
+                    humanMessages: 0, assistantMessages: 0,
+                    longestConv: { name: '', count: 0 },
+                    toolUseCounts: {}, thinkingBlocks: 0, thinkingTokens: 0,
+                    codeBlocks: 0, images: 0
+                };
 
                 const parser = new StreamingJSONArrayParser();
 
@@ -2409,6 +2673,21 @@
 
                     const msgCount = conv.messages.length;
                     messageCount += msgCount;
+                    if (msgCount > statsAcc.longestConv.count) statsAcc.longestConv = { name: conv.name, count: msgCount };
+                    for (const msg of conv.messages) {
+                        if (msg.role === 'human' || msg.role === 'user') statsAcc.humanMessages++;
+                        else if (msg.role === 'assistant') statsAcc.assistantMessages++;
+                        if (Array.isArray(msg.content)) {
+                            for (const b of msg.content) {
+                                if (b.type === 'tool_use') statsAcc.toolUseCounts[b.name] = (statsAcc.toolUseCounts[b.name] || 0) + 1;
+                                else if (b.type === 'thinking') { statsAcc.thinkingBlocks++; statsAcc.thinkingTokens += Math.round((b.thinking || '').length / 4); }
+                                else if (b.type === 'image') statsAcc.images++;
+                            }
+                        }
+                        const cs = typeof msg.content === 'string' ? msg.content : '';
+                        const cm = cs.match(/```/g);
+                        if (cm) statsAcc.codeBlocks += Math.floor(cm.length / 2);
+                    }
 
                     await this.db.storeConversation({
                         id: conv.id,
@@ -2428,6 +2707,7 @@
                 });
 
                 this.totalConversationCount = count;
+                this.detailedStats = statsAcc;
 
                 await this.db.setMetadata('importDate', new Date().toISOString());
                 await this.db.setMetadata('fileSize', file.size);
@@ -2489,7 +2769,11 @@
                     return content && content.trim().length > 0;
                 });
 
-                return hasContent ? normalised : null;
+                if (hasContent) {
+                    normalised.wordCount = this.estimateWordCount(normalised);
+                    return normalised;
+                }
+                return null;
             }
 
             processConversations(data) {
@@ -2511,6 +2795,7 @@
 
                 this.filteredConversations = [...this.conversations];
                 this.totalConversationCount = this.conversations.length;
+                this.detailedStats = this.computeDetailedStats(this.conversations);
                 this.updateStats();
                 this.renderConversations();
             }
@@ -2568,6 +2853,7 @@
                 }
 
                 await this.updateStats();
+                this.updateDetailedStats();
                 this.renderConversations();
 
                 if (this.filteredConversations.length > this.conversationsPerPage) {
@@ -2843,6 +3129,8 @@
                 const createdDate = this.formatDate(new Date(conversation.created_at));
                 const updatedDate = this.formatDate(new Date(conversation.updated_at || conversation.created_at));
                 const messageCount = this.useIndexedDB ? conversation.messageCount : conversation.messages.length;
+                const wordCount = conversation.wordCount || 0;
+                const wordStr = wordCount > 0 ? ` \u00B7 ~${wordCount.toLocaleString()} words` : '';
 
                 // IDB mode: don't pre-render messages (lazy load on expand)
                 const messagesHtml = this.useIndexedDB
@@ -2870,12 +3158,13 @@
                                     <div class="conversation-meta">
                                         <span>Created: ${createdDate}</span>
                                         <span>Updated: ${updatedDate}</span>
-                                        <span>${messageCount} messages</span>
+                                        <span>${messageCount} messages${wordStr}</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="conversation-header-actions">
-                                <button class="export-single-btn" onclick="event.stopPropagation(); app.exportSingleConversation('${conversation.id}')" title="Export this conversation">💾</button>
+                                <button class="export-single-btn" onclick="event.stopPropagation(); app.exportConversationAsMarkdown('${conversation.id}')" title="Export as Markdown">\uD83D\uDCDD</button>
+                                <button class="export-single-btn" onclick="event.stopPropagation(); app.exportSingleConversation('${conversation.id}')" title="Export as JSON">\uD83D\uDCBE</button>
                                 <button class="expand-toggle">▼</button>
                             </div>
                         </div>
@@ -3650,41 +3939,105 @@
             }
 
             formatMarkdown(text) {
-                // Simple markdown formatting
                 let formatted = text;
 
-                // Code blocks with language - wrap in collapsible container
+                // 1. Code blocks with language — collapsible, lang-styled, copy button
                 formatted = formatted.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
                     const codeId = 'code-' + Math.random().toString(36).substr(2, 9);
-                    const language = lang || 'code';
+                    const ls = lang ? LANG_STYLES[lang.toLowerCase()] : null;
+                    const label = ls ? ls.label : (lang || 'code');
+                    const labelStyle = ls ? ` style="color:${ls.color};background:${ls.bg};"` : '';
+                    const headerBg = ls ? ` style="background:${ls.bg};"` : '';
+
+                    // Diff syntax coloring
+                    let codeHtml = code;
+                    if (lang === 'diff') {
+                        codeHtml = code.split('\n').map(line => {
+                            if (line.startsWith('+')) return `<span style="color:#88ff88;">${line}</span>`;
+                            if (line.startsWith('-')) return `<span style="color:#ff8888;">${line}</span>`;
+                            if (line.startsWith('@')) return `<span style="color:#67e8f9;">${line}</span>`;
+                            return line;
+                        }).join('\n');
+                    }
+
                     return `<div class="collapsible-code-block">
-                        <div class="code-block-header" onclick="app.toggleCodeBlock('${codeId}')">
-                            <span class="code-block-label">${language}</span>
-                            <span class="code-block-toggle" id="${codeId}-toggle">▼</span>
+                        <div class="code-block-header" onclick="app.toggleCodeBlock('${codeId}')"${headerBg}>
+                            <span class="code-lang-label"${labelStyle}>${label}</span>
+                            <span style="display:flex;align-items:center;gap:8px;">
+                                <button class="copy-btn" data-copy-target="${codeId}" onclick="event.stopPropagation();copyCodeBlock('${codeId}')">\uD83D\uDCCB Copy</button>
+                                <span class="code-block-toggle" id="${codeId}-toggle">\u25BC</span>
+                            </span>
                         </div>
                         <div class="code-block-content" id="${codeId}">
-                            <pre><code class="language-${lang}">${code}</code></pre>
+                            <pre><code class="language-${lang || 'text'}">${codeHtml}</code></pre>
                         </div>
                     </div>`;
                 });
 
-                // Inline code
-                formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
-                
-                // Headers
+                // 2. Tables
+                formatted = formatted.replace(/((?:^|\n)\|.+\|(?:\n\|[-:| ]+\|)?(?:\n\|.+\|)+)/g, (match) => {
+                    const rows = match.trim().split('\n').filter(r => r.trim());
+                    if (rows.length < 2) return match;
+                    let html = '<table>';
+                    const isSep = (r) => /^\|[\s-:|]+\|$/.test(r.trim());
+                    let headerDone = false;
+                    for (const row of rows) {
+                        if (isSep(row)) { headerDone = true; continue; }
+                        const cells = row.split('|').slice(1, -1).map(c => c.trim());
+                        const tag = !headerDone ? 'th' : 'td';
+                        html += '<tr>' + cells.map(c => `<${tag}>${c}</${tag}>`).join('') + '</tr>';
+                        if (!headerDone) headerDone = true;
+                    }
+                    html += '</table>';
+                    return html;
+                });
+
+                // 3. Blockquotes (after HTML escaping, > becomes &gt;)
+                formatted = formatted.replace(/^&gt; (.*)/gm, '<blockquote>$1</blockquote>');
+                formatted = formatted.replace(/<\/blockquote>\n<blockquote>/g, '<br>');
+
+                // 4. Horizontal rules
+                formatted = formatted.replace(/^(?:---|\*\*\*|___)\s*$/gm, '<hr>');
+
+                // 5. Headings
                 formatted = formatted.replace(/^### (.*$)/gm, '<h3>$1</h3>');
                 formatted = formatted.replace(/^## (.*$)/gm, '<h2>$1</h2>');
                 formatted = formatted.replace(/^# (.*$)/gm, '<h1>$1</h1>');
-                
-                // Bold and italic
+
+                // 6. Unordered lists (- item or * item at start of line)
+                formatted = formatted.replace(/((?:^|\n)(?:[-*] .+(?:\n|$))+)/g, (match) => {
+                    const items = match.trim().split('\n')
+                        .filter(l => l.trim())
+                        .map(l => '<li>' + l.replace(/^[-*] /, '') + '</li>')
+                        .join('');
+                    return '\n<ul>' + items + '</ul>\n';
+                });
+
+                // 7. Ordered lists (1. item)
+                formatted = formatted.replace(/((?:^|\n)(?:\d+\. .+(?:\n|$))+)/g, (match) => {
+                    const items = match.trim().split('\n')
+                        .filter(l => l.trim())
+                        .map(l => '<li>' + l.replace(/^\d+\. /, '') + '</li>')
+                        .join('');
+                    return '\n<ol>' + items + '</ol>\n';
+                });
+
+                // 8. Inline code
+                formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+                // 9. Strikethrough, bold, italic
+                formatted = formatted.replace(/~~(.*?)~~/g, '<del>$1</del>');
                 formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
 
-                // Links - handle markdown links [text](url)
+                // 10. Links
                 formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
-                // Line breaks
+                // 11. Line breaks (not inside block elements)
                 formatted = formatted.replace(/\n/g, '<br>');
+                // Clean up excessive breaks around block elements
+                formatted = formatted.replace(/<br>\s*(<\/?(?:table|ul|ol|blockquote|h[1-3]|hr|div|pre|li))/g, '$1');
+                formatted = formatted.replace(/(<\/(?:table|ul|ol|blockquote|h[1-3]|hr|div|pre|li)>)\s*<br>/g, '$1');
 
                 return formatted;
             }
@@ -4034,7 +4387,7 @@
                     includeTimestamp: false
                 };
 
-                const saved = localStorage.getItem('claude-export-settings');
+                const saved = safeStorage.getItem('claude-export-settings');
                 this.settings = saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
             }
 
@@ -4062,7 +4415,7 @@
                 };
 
                 // Save to localStorage
-                localStorage.setItem('claude-export-settings', JSON.stringify(this.settings));
+                safeStorage.setItem('claude-export-settings', JSON.stringify(this.settings));
 
                 this.closeSettings();
             }
@@ -4075,6 +4428,151 @@
                 document.getElementById('includeTimestamp').checked = false;
             }
 
+            // Detailed statistics (v2.2)
+            computeDetailedStats(conversations) {
+                const stats = {
+                    humanMessages: 0, assistantMessages: 0,
+                    longestConv: { name: '', count: 0 },
+                    toolUseCounts: {}, thinkingBlocks: 0, thinkingTokens: 0,
+                    codeBlocks: 0, images: 0
+                };
+                for (const conv of conversations) {
+                    const msgs = conv.messages || [];
+                    if (msgs.length > stats.longestConv.count) {
+                        stats.longestConv = { name: conv.name, count: msgs.length };
+                    }
+                    for (const msg of msgs) {
+                        if (msg.role === 'human' || msg.role === 'user') stats.humanMessages++;
+                        else if (msg.role === 'assistant') stats.assistantMessages++;
+                        if (Array.isArray(msg.content)) {
+                            for (const block of msg.content) {
+                                if (block.type === 'tool_use') {
+                                    stats.toolUseCounts[block.name] = (stats.toolUseCounts[block.name] || 0) + 1;
+                                } else if (block.type === 'thinking') {
+                                    stats.thinkingBlocks++;
+                                    stats.thinkingTokens += Math.round((block.thinking || '').length / 4);
+                                } else if (block.type === 'image') {
+                                    stats.images++;
+                                }
+                            }
+                        }
+                        const contentStr = typeof msg.content === 'string' ? msg.content : '';
+                        const codeMatches = contentStr.match(/```/g);
+                        if (codeMatches) stats.codeBlocks += Math.floor(codeMatches.length / 2);
+                    }
+                }
+                return stats;
+            }
+
+            updateDetailedStats() {
+                const stats = this.detailedStats;
+                if (!stats) return;
+                document.getElementById('detailedStatsHeader').style.display = 'flex';
+                const body = document.getElementById('detailedStatsBody');
+                const totalTool = Object.values(stats.toolUseCounts).reduce((s, v) => s + v, 0);
+                const topTools = Object.entries(stats.toolUseCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 6)
+                    .map(([name, count]) => {
+                        const icon = TOOL_ICONS[name] || '\uD83D\uDD27';
+                        const label = TOOL_NAMES[name] || name;
+                        return `<div class="stat-line"><span>${icon} ${this.escapeHtml(label)}</span><span class="stat-val">${count.toLocaleString()}</span></div>`;
+                    }).join('');
+
+                body.innerHTML = `
+                    <div class="stats-section">
+                        <h4>Messages</h4>
+                        <div class="stat-line"><span>Human</span><span class="stat-val">${stats.humanMessages.toLocaleString()}</span></div>
+                        <div class="stat-line"><span>Assistant</span><span class="stat-val">${stats.assistantMessages.toLocaleString()}</span></div>
+                        <div class="stat-line"><span>Longest conversation</span><span class="stat-val" title="${this.escapeHtml(stats.longestConv.name)}">${stats.longestConv.count} msgs</span></div>
+                    </div>
+                    <div class="stats-section">
+                        <h4>Content Types</h4>
+                        <div class="stat-line"><span>Tool use blocks</span><span class="stat-val">${totalTool.toLocaleString()}</span></div>
+                        <div class="stat-line"><span>Thinking blocks</span><span class="stat-val">${stats.thinkingBlocks.toLocaleString()}${stats.thinkingTokens > 0 ? ' (~' + Math.round(stats.thinkingTokens/1000) + 'k tokens)' : ''}</span></div>
+                        <div class="stat-line"><span>Code blocks</span><span class="stat-val">${stats.codeBlocks.toLocaleString()}</span></div>
+                        <div class="stat-line"><span>Images</span><span class="stat-val">${stats.images.toLocaleString()}</span></div>
+                    </div>
+                    ${topTools ? '<div class="stats-section" style="grid-column: 1 / -1;"><h4>Top Tools</h4>' + topTools + '</div>' : ''}
+                `;
+            }
+
+            toggleDetailedStats() {
+                const body = document.getElementById('detailedStatsBody');
+                const toggle = document.getElementById('detailedStatsToggle');
+                body.classList.toggle('expanded');
+                toggle.textContent = body.classList.contains('expanded') ? '\u25B2' : '\u25BC';
+            }
+
+            // Markdown export (v2.2)
+            async exportConversationAsMarkdown(conversationId) {
+                let conversation;
+                if (this.useIndexedDB) {
+                    const header = await this.db.getConversation(conversationId);
+                    if (!header) { alert('Conversation not found'); return; }
+                    const messages = await this.db.getMessages(conversationId);
+                    conversation = { ...header, messages };
+                } else {
+                    conversation = this.conversations.find(c => c.id === conversationId);
+                    if (!conversation) { alert('Conversation not found'); return; }
+                }
+                const md = this.convertConversationToMarkdown(conversation);
+                const sanitized = conversation.name.replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase().substring(0, this.settings.titleLength);
+                const filename = `${sanitized}.md`;
+                const blob = new Blob([md], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = filename;
+                document.body.appendChild(a); a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            convertConversationToMarkdown(conv) {
+                let md = `# ${conv.name}\n`;
+                md += `*Created: ${this.formatDate(new Date(conv.created_at))} | Messages: ${conv.messages.length}*\n\n---\n\n`;
+                for (const msg of conv.messages) {
+                    const role = msg.role === 'human' ? 'Human' : msg.role === 'assistant' ? 'Assistant' : msg.role;
+                    md += `## ${role}\n\n`;
+                    const content = msg.content;
+                    if (typeof content === 'string') {
+                        md += content + '\n\n';
+                    } else if (Array.isArray(content)) {
+                        for (const block of content) {
+                            if (block.type === 'text') {
+                                md += (block.text || '') + '\n\n';
+                            } else if (block.type === 'tool_use') {
+                                const icon = TOOL_ICONS[block.name] || '\uD83D\uDD27';
+                                const name = TOOL_NAMES[block.name] || block.name;
+                                md += `### ${icon} ${name}\n\n`;
+                                if (block.input) {
+                                    if (block.name === 'bash_tool' && block.input.command) {
+                                        md += '```bash\n$ ' + block.input.command + '\n```\n\n';
+                                    } else if (block.name === 'web_search' && block.input.query) {
+                                        md += `Query: "${block.input.query}"\n\n`;
+                                    } else {
+                                        md += '```json\n' + JSON.stringify(block.input, null, 2) + '\n```\n\n';
+                                    }
+                                }
+                            } else if (block.type === 'thinking') {
+                                const text = (block.thinking || '').substring(0, 500);
+                                md += `### \uD83D\uDCAD Thinking\n\n*${text}${block.thinking && block.thinking.length > 500 ? '...' : ''}*\n\n`;
+                            } else if (block.type === 'tool_result') {
+                                md += `### \uD83D\uDCCB Tool Result\n\n`;
+                                if (typeof block.content === 'string') md += block.content + '\n\n';
+                                else if (Array.isArray(block.content)) {
+                                    for (const item of block.content) {
+                                        if (item.type === 'text') md += (item.text || '') + '\n\n';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    md += '---\n\n';
+                }
+                return md;
+            }
+
             // Keyboard shortcuts methods
             openShortcuts() {
                 document.getElementById('shortcutsModal').classList.add('active');
@@ -4085,68 +4583,109 @@
             }
 
             handleKeyboardShortcuts(event) {
+                const inInput = event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.tagName === 'SELECT';
+
                 // Ctrl/Cmd + K: Focus search
                 if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
                     event.preventDefault();
-                    const searchBox = document.getElementById('searchBox');
-                    if (searchBox) {
-                        searchBox.focus();
-                        searchBox.select();
-                    }
+                    const sb = document.getElementById('searchBox');
+                    if (sb) { sb.focus(); sb.select(); }
+                    return;
+                }
+
+                // / : Focus search (when not in input)
+                if (event.key === '/' && !inInput && !event.ctrlKey && !event.metaKey) {
+                    event.preventDefault();
+                    const sb = document.getElementById('searchBox');
+                    if (sb) { sb.focus(); sb.select(); }
                     return;
                 }
 
                 // ?: Show shortcuts help
-                if (event.key === '?' && !event.ctrlKey && !event.metaKey && !event.altKey) {
-                    // Only if not typing in an input field
-                    if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
-                        event.preventDefault();
-                        this.openShortcuts();
-                    }
+                if (event.key === '?' && !inInput && !event.ctrlKey && !event.metaKey) {
+                    event.preventDefault();
+                    this.openShortcuts();
                     return;
                 }
 
-                // Escape: Close any open modal
+                // Escape: Close modals, then collapse expanded conversations
                 if (event.key === 'Escape') {
-                    const settingsModal = document.getElementById('settingsModal');
-                    const shortcutsModal = document.getElementById('shortcutsModal');
-                    if (settingsModal.classList.contains('active')) {
-                        this.closeSettings();
-                    } else if (shortcutsModal.classList.contains('active')) {
-                        this.closeShortcuts();
+                    const sm = document.getElementById('settingsModal');
+                    const km = document.getElementById('shortcutsModal');
+                    if (sm.classList.contains('active')) { this.closeSettings(); return; }
+                    if (km.classList.contains('active')) { this.closeShortcuts(); return; }
+                    // Collapse any expanded conversation
+                    const expanded = document.querySelector('.conversation-content.expanded');
+                    if (expanded) {
+                        expanded.classList.remove('expanded');
+                        const toggle = expanded.previousElementSibling?.querySelector('.expand-toggle');
+                        if (toggle) toggle.classList.remove('expanded');
                     }
                     return;
                 }
 
-                // Arrow keys for pagination (only if not in an input field)
-                if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA' && event.target.tagName !== 'SELECT') {
-                    if (event.key === 'ArrowRight') {
-                        event.preventDefault();
-                        // Try both pagination controls
-                        const nextBtn = document.getElementById('nextPage');
-                        const nextBtn2 = document.getElementById('nextPage2');
+                if (inInput) return;
 
-                        if (nextBtn && !nextBtn.disabled && window.getComputedStyle(nextBtn.parentElement).display !== 'none') {
-                            this.goToPage(this.currentPage + 1);
-                        } else if (nextBtn2 && !nextBtn2.disabled && window.getComputedStyle(nextBtn2.parentElement).display !== 'none') {
-                            this.goToPage(this.currentPage + 1);
-                        }
-                        return;
+                // Arrow keys and Home/End for pagination
+                if (event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    this.goToPage(this.currentPage + 1);
+                    return;
+                }
+                if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    this.goToPage(this.currentPage - 1);
+                    return;
+                }
+                if (event.key === 'Home') {
+                    event.preventDefault();
+                    this.goToPage(1);
+                    return;
+                }
+                if (event.key === 'End') {
+                    event.preventDefault();
+                    this.goToPage(this.getTotalPages());
+                    return;
+                }
+
+                // j/k: Navigate conversations, Enter: toggle
+                const items = document.querySelectorAll('.conversation-item');
+                if (items.length === 0) return;
+                const focused = document.querySelector('.conversation-item.focused');
+
+                if (event.key === 'j') {
+                    event.preventDefault();
+                    if (!focused) {
+                        items[0].classList.add('focused');
+                        items[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    } else {
+                        const idx = Array.from(items).indexOf(focused);
+                        focused.classList.remove('focused');
+                        const next = items[Math.min(idx + 1, items.length - 1)];
+                        next.classList.add('focused');
+                        next.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
-
-                    if (event.key === 'ArrowLeft') {
-                        event.preventDefault();
-                        // Try both pagination controls
-                        const prevBtn = document.getElementById('prevPage');
-                        const prevBtn2 = document.getElementById('prevPage2');
-
-                        if (prevBtn && !prevBtn.disabled && window.getComputedStyle(prevBtn.parentElement).display !== 'none') {
-                            this.goToPage(this.currentPage - 1);
-                        } else if (prevBtn2 && !prevBtn2.disabled && window.getComputedStyle(prevBtn2.parentElement).display !== 'none') {
-                            this.goToPage(this.currentPage - 1);
-                        }
-                        return;
+                    return;
+                }
+                if (event.key === 'k') {
+                    event.preventDefault();
+                    if (!focused) {
+                        items[items.length - 1].classList.add('focused');
+                        items[items.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    } else {
+                        const idx = Array.from(items).indexOf(focused);
+                        focused.classList.remove('focused');
+                        const prev = items[Math.max(idx - 1, 0)];
+                        prev.classList.add('focused');
+                        prev.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
+                    return;
+                }
+                if (event.key === 'Enter' && focused) {
+                    event.preventDefault();
+                    const header = focused.querySelector('.conversation-header');
+                    if (header) header.click();
+                    return;
                 }
             }
 
